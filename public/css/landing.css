@@ -1,0 +1,107 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins}
+
+body{overflow:hidden}
+
+/* NAVBAR */
+.navbar{
+  position:fixed;
+  width:100%;
+  top:0;
+  padding:15px 40px;
+  background:#fff;
+  z-index:100;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.nav a{margin-left:20px;text-decoration:none;color:#333}
+
+.btn{
+  background:#e056fd;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:5px;
+}
+
+/* HERO */
+.hero{
+  height:100vh;
+  background:radial-gradient(circle,#8e44ad,#2c3e50);
+  position:relative;
+  overflow:hidden;
+}
+
+/* TEXT */
+.left{
+  position:absolute;
+  left:10%;
+  top:45%;
+  color:#fff;
+}
+
+.right{
+  position:absolute;
+  right:10%;
+  top:45%;
+  text-align:right;
+  color:#fff;
+}
+
+/* PHONE */
+.phone{
+  position:absolute;
+  left:60%;
+  top:50%;
+  transform:translate(-50%,-50%);
+}
+
+.phone img{
+  height:420px; /* sebelumnya kegedean */
+  transform:rotate(-18deg);
+}
+/* CIRCLE */
+.circle{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(0);
+  border-radius:50%;
+}
+
+.big{
+  width:600px;height:600px;
+  background:#a029c5;
+  animation:bloom 1s forwards;
+}
+
+.mid{
+  width:450px;height:450px;
+  background:#c039d4;
+  animation:bloom 1s forwards;
+  animation-delay:.2s;
+}
+
+.small{
+  width:300px;height:300px;
+  background:#e056fd;
+  animation:bloom 1s forwards;
+  animation-delay:.4s;
+}
+
+/* ANIM */
+@keyframes up{
+  to{
+    bottom:50%;
+    transform:translate(-50%,50%);
+  }
+}
+
+@keyframes bloom{
+  to{
+    transform:translate(-50%,-50%) scale(1);
+  }
+}
