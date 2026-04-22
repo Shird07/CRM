@@ -1,120 +1,103 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react'
 
 export default function Register() {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
-    });
+    })
 
     const submit = (e) => {
-        e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
-    };
+        e.preventDefault()
+        post('/register')
+    }
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Register" />
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#2c3e50] to-[#8e44ad]">
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
-                        autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                    />
+                <div className="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-xl w-[400px]">
 
-                    <InputError message={errors.name} className="mt-2" />
+                    <h2 className="text-2xl font-bold text-center mb-2">
+                        Daftar Akun
+                    </h2>
+
+                    <p className="text-center text-gray-500 mb-6">
+                        Buat akun baru untuk mulai
+                    </p>
+
+                    <form onSubmit={submit} className="space-y-4">
+
+                        {/* NAME */}
+                        <div>
+                            <input
+                                type="text"
+                                placeholder="Masukkan nama"
+                                value={data.name}
+                                onChange={e => setData('name', e.target.value)}
+                                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+                        </div>
+
+                        {/* EMAIL */}
+                        <div>
+                            <input
+                                type="email"
+                                placeholder="Masukkan email"
+                                value={data.email}
+                                onChange={e => setData('email', e.target.value)}
+                                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                        </div>
+
+                        {/* PASSWORD */}
+                        <div>
+                            <input
+                                type="password"
+                                placeholder="Masukkan password"
+                                value={data.password}
+                                onChange={e => setData('password', e.target.value)}
+                                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                        </div>
+
+                        {/* CONFIRM */}
+                        <div>
+                            <input
+                                type="password"
+                                placeholder="Ulangi password"
+                                value={data.password_confirmation}
+                                onChange={e => setData('password_confirmation', e.target.value)}
+                                className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                        </div>
+
+                        {/* BUTTON */}
+                        <button
+                            disabled={processing}
+                            className="w-full py-3 rounded-lg text-white font-semibold 
+                            bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 transition"
+                        >
+                            Daftar
+                        </button>
+
+                    </form>
+
+                    <p className="text-center text-sm mt-5">
+                        Sudah punya akun?{' '}
+                        <Link href="/login" className="text-purple-600 font-semibold">
+                            Login
+                        </Link>
+                    </p>
+
                 </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        required
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
-    );
+            </div>
+        </>
+    )
 }
