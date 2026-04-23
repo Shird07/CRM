@@ -29,4 +29,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function prospeks()
+    {
+        return $this->hasMany(Prospek::class, 'sales_id');
+    }
 }
