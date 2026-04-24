@@ -25,7 +25,7 @@ export default function AppLayout({ children }) {
     };
 
     return (
-        <div className={`${dark ? 'dark' : ''} flex min-h-screen bg-gray-100 dark:bg-[#0f172a]`}>
+        <div className={`${dark ? 'dark' : ''} flex min-h-screen bg-gray-100
 
             {/* SIDEBAR */}
             <aside className={`${open ? 'w-64' : 'w-20'} transition-all duration-300 bg-gradient-to-b from-purple-700 to-indigo-900 text-white p-4`}>
@@ -74,9 +74,9 @@ export default function AppLayout({ children }) {
             <div className="flex-1">
 
                 {/* NAVBAR */}
-                <div className="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b]">
+                <div className="flex justify-between items-center p-4 border-b border-gray-300 bg-white">
 
-                    <h1 className="font-semibold dark:text-white">
+                    <h1 className="font-semibold">
                         CRM Dashboard
                     </h1>
 
@@ -93,7 +93,7 @@ export default function AppLayout({ children }) {
                                 src="https://i.pravatar.cc/40"
                                 className="w-8 h-8 rounded-full"
                             />
-                            <span className="hidden md:block dark:text-white">
+                            <span className="hidden md:block">
                                 {props.auth?.user?.name || 'User'}
                             </span>
                         </div>
@@ -108,7 +108,7 @@ export default function AppLayout({ children }) {
                 </div>
 
                 {/* CONTENT */}
-                <main className="p-6 text-gray-900 dark:text-white">
+                <main className="p-6 text-gray-900">
                     {children}
                 </main>
 
