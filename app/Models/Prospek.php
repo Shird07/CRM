@@ -3,36 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Prospek extends Model
 {
-   public function sales()
+    protected $fillable = [
+        'nama', 'no_hp', 'produk',
+        'sales_id', 'product_id', 'status',
+    ];
+
+    // ✅ Relasi ke User (sales)
+    public function sales()
     {
         return $this->belongsTo(User::class, 'sales_id');
     }
 
-    public function followUps()
+    // ✅ Relasi ke Deal (hasOne karena 1 prospek = 1 deal)
+    public function deal()
     {
-        return $this->hasMany(FollowUp::class);
+        return $this->hasOne(Deal::class);
     }
 
+    // ✅ Relasi ke Penawaran (hasMany)
     public function penawarans()
     {
         return $this->hasMany(Penawaran::class);
     }
 
-    public function deal()
+    // ✅ Alias singular untuk eager load di controller
+    public function penawaran()
     {
-        return $this->hasOne(Deal::class);
-    } //
+        return $this->hasMany(Penawaran::class);
+    }
 
-    protected $fillable = 
-    [
-        'nama',
-        'no_hp',
-        'produk',
-        'sales_id'
-    ];
+    // ✅ Relasi ke Product (jika tabel products sudah ada)
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }
-

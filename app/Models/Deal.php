@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Deal extends Model
 {
+    protected $fillable = ['prospek_id', 'status', 'alasan'];
+
+    // ✅ Relasi balik ke Prospek
     public function prospek()
     {
         return $this->belongsTo(Prospek::class);
     }
-    protected $fillable = 
-    [
-    'prospek_id',
-    'status',
-    'alasan'
-    ];
 }

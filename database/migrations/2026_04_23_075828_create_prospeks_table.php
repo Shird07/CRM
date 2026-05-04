@@ -6,25 +6,44 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('prospeks', function (Blueprint $table) {
             $table->id();
+
+            // DATA CUSTOMER
             $table->string('nama');
             $table->string('no_hp');
-            $table->string('produk');
-            $table->foreignId('sales_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('status', ['baru', 'follow_up', 'deal', 'lose'])->default('baru');
+
+            // RELASI
+            $table->foreignId('sales_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            $table->foreignId('region_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
+            $table->foreignId('product_id')
+                ->nullable()
+                ->constrained('products')
+                ->nullOnDelete();
+
+            // PIPELINE CRM (INI YANG UTAMA)
+            $table->enum('stage', [
+                'lead',
+                'follow_up',
+                'negosiasi',
+                'deal',
+                'win',
+                'lose'
+            ])->default('lead');
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('prospeks');

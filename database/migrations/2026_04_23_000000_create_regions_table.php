@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('deals', function (Blueprint $table) {
+        Schema::create('regions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('prospek_id')->constrained()->cascadeOnDelete();
-            $table->enum('status', ['win', 'lose']);
-            $table->text('alasan')->nullable();
             $table->timestamps();
-
-            $table->integer('value')->default(0);
         });
     }
 
@@ -27,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('deals');
+        Schema::dropIfExists('regions');
     }
 };
