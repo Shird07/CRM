@@ -4,11 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Models\Product;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
+        // =========================
+        // 🔹 DATA PRODUK
+        // =========================
+        $products = Product::all();
+
+        // =========================
+        // 🔹 DATA SALES
+        // =========================
+        $sales = DB::table('users')
+            ->where('role', 'sales')
+            ->get();
+
         // =========================
         // 🔹 BASIC STATS
         // =========================
@@ -76,7 +89,7 @@ class AdminDashboardController extends Controller
             ->get();
 
         // =========================
-        // 🔹 RETURN KE REACT (INERTIA)
+        // 🔥 FINAL RETURN (SATU SAJA!)
         // =========================
         return Inertia::render('Admin/Dashboard', [
             'totalProspek'   => $totalProspek,
@@ -86,6 +99,8 @@ class AdminDashboardController extends Controller
             'salesTrendData' => $salesTrendData,
             'topToko'        => $topToko,
             'topProducts'    => $topProducts,
+            'allProducts'    => $products,
+            'allSales'       => $sales,
         ]);
     }
 }

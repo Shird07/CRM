@@ -105,5 +105,7 @@ class ProspekController extends Controller
         'prospek' => $prospek,
         'activities' => $activities
     ]);
+
+    
 }
 }

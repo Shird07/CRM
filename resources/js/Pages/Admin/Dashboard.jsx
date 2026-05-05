@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePage } from "@inertiajs/react";
+import { router } from '@inertiajs/react';
 import {
     LayoutDashboard, Users, MapPin, BarChart2, ShoppingBag,
     TrendingUp, Settings, ChevronLeft, ChevronRight, Bell,
@@ -12,7 +13,6 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer, AreaChart, Area,
 } from "recharts";
-
 
 /* ── MOCK DATA ── */
 const salesRanking = [
@@ -241,6 +241,8 @@ function DashboardPage() {
     const displayLowStock = lowStockItems.length ? lowStockItems : lowStockItems;
     const displayTopProducts = topProducts ?? [];
     console.log("INI DATA DARI BACKEND:", props);
+    const page = usePage();
+    console.log(page.props.allSales);
 
 
     return (
@@ -513,11 +515,7 @@ function DashboardPage() {
 
 /* ── SALES PAGE ── */
 function SalesPage({ allSales = [] }) {
-    const displaySales = allSales.length ? allSales : [
-        { id: 1, name: "Demo Sales", email: "sales@demo.com", regional: "Jakarta", status: "Aktif", joined: "12 Jan 2026" },
-        { id: 2, name: "Budi Santoso", email: "budi@demo.com", regional: "Surabaya", status: "Aktif", joined: "15 Feb 2026" },
-        { id: 3, name: "Siti Aminah", email: "siti@demo.com", regional: "Bandung", status: "Nonaktif", joined: "01 Mar 2026" },
-    ];
+    const displaySales = allSales;
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
             <div className="flex justify-between items-center">
@@ -715,11 +713,7 @@ function StatistikPage() {
 
 /* ── PROSES PENJUALAN PAGE ── */
 function ProsesPenjualanPage({ allProspeks = [] }) {
-    const displayProspeks = allProspeks.length ? allProspeks : [
-        { id: 1, sales: { name: "Budi Santoso" }, product: "CRM Premium Plan", created_at: "28 Apr 2026", stage: "Penawaran", deal: { value: 15000000 } },
-        { id: 2, sales: { name: "Siti Aminah" }, product: "ERP Modul Tambahan", created_at: "25 Apr 2026", stage: "win", deal: { value: 25000000 } },
-        { id: 3, sales: { name: "Demo Sales" }, product: "Paket Hosting Bisnis", created_at: "22 Apr 2026", stage: "lose", deal: { value: 5000000 } },
-    ];
+    
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
             <div className="flex justify-between items-center">
@@ -1000,9 +994,11 @@ const pageMeta = {
     "pengaturan-sistem": { title: "Pengaturan", subtitle: "Preferensi sistem" },
 };
 
-export default function Dashboard(props) {
+export default function Dashboard() {
     const [active, setActive] = useState("dashboard");
     const [collapsed, setCollapsed] = useState(false);
+    const { props } = usePage();
+    console.log("PRODUCTS:", props.products);
 
     const meta = pageMeta[active] || pageMeta.dashboard;
 
@@ -1019,6 +1015,7 @@ export default function Dashboard(props) {
             case "pengaturan-profil": return <PengaturanPage subPage="profil" />;
             case "pengaturan-sistem": return <PengaturanPage subPage="sistem" />;
             default: return <DashboardPage {...props} />;
+            
         }
     };
 

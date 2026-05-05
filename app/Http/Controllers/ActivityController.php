@@ -19,7 +19,7 @@ class ActivityController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ]);
-
+    
         return back();
     }
 }
