@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRef } from "react";
 import { usePage } from "@inertiajs/react";
 import { router } from '@inertiajs/react';
 import {
@@ -13,27 +14,6 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer, AreaChart, Area,
 } from "recharts";
-
-/* ── MOCK DATA ── */
-const salesRanking = [
-    { id: 1, name: "Demo Sales", regional: "Jakarta", revenue: 48295000 },
-    { id: 2, name: "Budi Santoso", revenue: 35100000 },
-    { id: 3, name: "Siti Aminah", revenue: 28750000 },
-];
-
-const miniBarData = [2, 5, 3, 7, 4, 8, 6, 9, 5, 11, 8, 12];
-const miniBarData2 = [3, 4, 6, 5, 8, 7, 9, 6, 10, 8, 11, 10];
-
-const budgetData = [
-    { label: "Google Ads", used: 78700, total: 120000, color: "#3b82f6" },
-    { label: "TikTok Ads", used: 250000, total: 350000, color: "#6366f1" },
-    { label: "Meta Ads", used: 175000, total: 200000, color: "#8b5cf6" },
-];
-
-const customerReviews = [
-    { name: "Kevin S.", rating: 5, text: "Produk sangat bagus, pengiriman cepat dan pengemasan rapi. Sangat puas!" },
-    { name: "Rina T.", rating: 4, text: "Kualitas oke, tapi pengiriman sedikit terlambat. Overall happy!" },
-];
 
 const fmt = (n = 0) =>
     new Intl.NumberFormat("id-ID", {
@@ -107,90 +87,103 @@ const menuItems = [
     { key: "customers", label: "Database Pelanggan", icon: Users },
 ];
 
+
 function Sidebar({ active, setActive, collapsed, setCollapsed }) {
-    const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [spinClass, setSpinClass] = useState("");
+  const spinTimeout = useRef(null);
 
-    return (
-        <aside
-            className="flex flex-col border-r border-gray-200 bg-white transition-all duration-300"
-            style={{ width: collapsed ? 72 : 220, minHeight: "100vh" }}
+  const handleCollapse = () => {
+    // Trigger spin animation
+    setSpinClass(collapsed ? "logo-spin-reverse" : "logo-spin");
+    clearTimeout(spinTimeout.current);
+    spinTimeout.current = setTimeout(() => setSpinClass(""), 520);
+    setCollapsed(!collapsed);
+  };
+
+  return (
+    <aside
+      className="flex flex-col border-r border-gray-200 bg-white"
+      style={{
+        width: collapsed ? 72 : 220,
+        minHeight: "100vh",
+        transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+    >
+      {/* Brand */}
+      <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
+        <div
+          className={`w-8 h-8 flex items-center justify-center flex-shrink-0 
+                      bg-gradient-to-br from-blue-500 to-indigo-600 cursor-pointer ${spinClass}`}
+          onClick={handleCollapse}
+          style={{
+            borderRadius: collapsed ? "50%" : "8px",
+            transition: "border-radius 0.3s ease",
+          }}
         >
-            {/* Brand */}
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow">
-                    <span className="text-white font-bold text-xs">G</span>
-                </div>
-                {!collapsed && (
-                    <div>
-                        <p className="font-bold text-gray-800 text-sm leading-tight">Gestion</p>
-                        <p className="text-[10px] text-gray-400">Admin</p>
-                    </div>
-                )}
-            </div>
+          <span className="text-white font-bold text-xs">G</span>
+        </div>
 
-            {/* Nav */}
-            <nav className="flex-1 py-4 px-3 space-y-0.5">
-                {!collapsed && (
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">Menu</p>
-                )}
-                {menuItems.map(({ key, label, icon: Icon }) => {
-                    const isActive = active === key;
-                    return (
-                        <button key={key} onClick={() => setActive(key)}
-                            className={`group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150
-                            ${isActive
-                                    ? "bg-blue-50 text-blue-700 font-semibold"
-                                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
-                        >
-                            <Icon size={16} className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"}`} />
-                            {!collapsed && <span>{label}</span>}
-                        </button>
-                    );
-                })}
-            </nav>
+        {/* Label fade */}
+        <div className={`sidebar-label ${collapsed ? "hidden-label" : "visible-label"}`}>
+          <p className="font-bold text-gray-800 text-sm leading-tight">Gestion</p>
+          <p className="text-[10px] text-gray-400">Admin</p>
+        </div>
+      </div>
 
-            {/* Footer */}
-            <div className="border-t border-gray-100 py-3 px-3 space-y-0.5">
-                <button
-                    onClick={() => {
-                        if (collapsed) { setCollapsed(false); setSettingsOpen(true); setActive("pengaturan-profil"); }
-                        else { setSettingsOpen(!settingsOpen); if (!settingsOpen) setActive("pengaturan-profil"); }
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition
-                    ${active.startsWith("pengaturan") ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}
-                >
-                    <div className="flex items-center gap-3">
-                        <Settings size={16} className={`flex-shrink-0 ${active.startsWith("pengaturan") ? "text-blue-600" : "text-gray-400"}`} />
-                        {!collapsed && <span>Pengaturan</span>}
-                    </div>
-                    {!collapsed && <ChevronDown size={14} className={`transition-transform ${settingsOpen ? "rotate-180" : ""}`} />}
-                </button>
+      {/* Nav */}
+      <nav className="flex-1 py-4 px-3 space-y-0.5">
+        {!collapsed && (
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">
+            Menu
+          </p>
+        )}
+        {menuItems.map(({ key, label, icon: Icon }) => {
+          const isActive = active === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setActive(key)}
+              className={`relative group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                transition-all duration-150
+                ${isActive
+                  ? "bg-blue-50 text-blue-700 font-semibold"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                }`}
+            >
+              {/* Active indicator dot */}
+              {isActive && <span className="nav-active-dot" />}
 
-                {settingsOpen && !collapsed && (
-                    <div className="pl-7 space-y-0.5">
-                        <button onClick={() => setActive("pengaturan-profil")}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition ${active === "pengaturan-profil" ? "text-blue-700 bg-blue-50" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}>
-                            <User size={14} /><span>Profil</span>
-                        </button>
-                        <button onClick={() => setActive("pengaturan-sistem")}
-                            className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition ${active === "pengaturan-sistem" ? "text-blue-700 bg-blue-50" : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"}`}>
-                            <Sliders size={14} /><span>Sistem</span>
-                        </button>
-                        <button onClick={() => {}}
-                            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:text-red-700 hover:bg-red-50 transition">
-                            <LogOut size={14} /><span>Logout</span>
-                        </button>
-                    </div>
-                )}
+              <Icon
+                size={16}
+                className={`flex-shrink-0 ${isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"}`}
+              />
 
-                <button onClick={() => setCollapsed(!collapsed)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition">
-                    {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-                    {!collapsed && <span>Collapse</span>}
-                </button>
-            </div>
-        </aside>
-    );
+              <span className={`sidebar-label ${collapsed ? "hidden-label" : "visible-label"}`}>
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="border-t border-gray-100 py-3 px-3 space-y-0.5">
+        {/* ... Pengaturan tetap sama ... */}
+
+        <button
+          onClick={handleCollapse}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm 
+                     text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition"
+        >
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          <span className={`sidebar-label ${collapsed ? "hidden-label" : "visible-label"}`}>
+            Collapse
+          </span>
+        </button>
+      </div>
+    </aside>
+  );
 }
 
 /* ── TOPBAR ── */
@@ -232,17 +225,17 @@ function DashboardPage() {
     const ranking = props.ranking ?? [];
     const lowStockItems = props.lowStockItems ?? [];
     const topProducts = props.topProducts ?? [];
+    const budgetUsage = props.budgetUsage ?? [];
+    const customerReviews = props.customerReviews ?? [];
 
     const [timeFilter, setTimeFilter] = useState("bulan_ini");
     const winRate = totalProspek ? Math.round((totalWin / totalProspek) * 100) : 0;
-    // Fallback data if DB is empty for demo purposes
-    const displayRanking = ranking.length ? ranking : salesRanking;
-    const displayTrend = salesTrendData.length ? salesTrendData : salesTrendData; 
-    const displayLowStock = lowStockItems.length ? lowStockItems : lowStockItems;
-    const displayTopProducts = topProducts ?? [];
-    console.log("INI DATA DARI BACKEND:", props);
-    const page = usePage();
-    console.log(page.props.allSales);
+    const displayRanking = ranking;
+    const displayTrend = salesTrendData;
+    const displayLowStock = lowStockItems;
+    const displayTopProducts = topProducts;
+    const miniBarRevenue = salesTrendData.map(item => item.closing ?? 0);
+    const miniBarProspek = salesTrendData.map(item => item.masuk ?? 0);
 
 
     return (
@@ -266,7 +259,7 @@ function DashboardPage() {
                                 <span className="text-xs text-gray-400">dari bulan lalu</span>
                             </div>
                         </div>
-                        <MiniBar data={miniBarData} color="#3b82f6" />
+                        <MiniBar data={miniBarRevenue.length ? miniBarRevenue : [0]} color="#3b82f6" />
                     </div>
                 </div>
 
@@ -287,7 +280,7 @@ function DashboardPage() {
                                 <span className="text-xs text-gray-400">dari bulan lalu</span>
                             </div>
                         </div>
-                        <MiniBar data={miniBarData2} color="#6366f1" />
+                        <MiniBar data={miniBarProspek.length ? miniBarProspek : [0]} color="#6366f1" />
                     </div>
                 </div>
 
@@ -381,12 +374,12 @@ function DashboardPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs font-semibold text-gray-700">
-                                                {p.brand} {p.type}
-                                            </p>
+                                            {p.brand} {p.type}
+                                        </p>
 
-                                            <p className="text-xs font-bold text-gray-800">
-                                                {p.total || 0}
-                                            </p>
+                                        <p className="text-xs font-bold text-gray-800">
+                                            {p.total || 0}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="text-right">
@@ -411,7 +404,7 @@ function DashboardPage() {
                         </button>
                     </div>
                     <div className="space-y-4">
-                        {budgetData.map(b => {
+                        {budgetUsage.map(b => {
                             const pct = Math.round((b.used / b.total) * 100);
                             return (
                                 <div key={b.label}>
@@ -431,6 +424,7 @@ function DashboardPage() {
                                 </div>
                             );
                         })}
+                        {!budgetUsage.length && <p className="text-xs text-gray-400 text-center py-10">Belum ada data budget</p>}
                     </div>
                 </div>
 
@@ -453,6 +447,7 @@ function DashboardPage() {
                                 <p className="text-[11px] text-gray-500 leading-relaxed">{r.text}</p>
                             </div>
                         ))}
+                        {!customerReviews.length && <p className="text-xs text-gray-400 text-center py-10">Belum ada data review</p>}
                     </div>
                 </div>
 
@@ -532,6 +527,7 @@ function SalesPage({ allSales = [] }) {
                     <table className="w-full text-left min-w-[600px]">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500">
+                                <th className="px-5 py-3 font-semibold uppercase tracking-wide">Kode Sales</th>
                                 <th className="px-5 py-3 font-semibold uppercase tracking-wide">Nama</th>
                                 <th className="px-5 py-3 font-semibold uppercase tracking-wide">Email</th>
                                 <th className="px-5 py-3 font-semibold uppercase tracking-wide">Status</th>
@@ -541,6 +537,7 @@ function SalesPage({ allSales = [] }) {
                         <tbody>
                             {displaySales.map(s => (
                                 <tr key={s.id} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/30 transition">
+                                    <td className="px-5 py-3.5 text-xs font-mono text-gray-500">{s.kode_sales || "-"}</td>
                                     <td className="px-5 py-3.5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-xs font-bold flex items-center justify-center">{s.name[0]}</div>
@@ -552,8 +549,12 @@ function SalesPage({ allSales = [] }) {
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${s.role === "admin" ? "bg-purple-50 text-purple-700 border border-purple-200" : "bg-green-50 text-green-700 border border-green-200"}`}>{s.role || "sales"}</span>
                                     </td>
                                     <td className="px-5 py-3.5 text-center">
-                                        <button className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3">Edit</button>
-                                        <button className="text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>
+                                        <button
+                                            onClick={() => router.visit(`/admin/sales/${s.id}`)}
+                                            className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3"
+                                        >
+                                            Rincian
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -566,13 +567,7 @@ function SalesPage({ allSales = [] }) {
 }
 
 /* ── WILAYAH PAGE ── */
-function WilayahPage() {
-    const stores = [
-        { id: 1, code: "JKT-01 / TK-001", region: "DKI Jakarta", name: "Toko Abadi Jaya", target: 500000000, current: 350000000, status: "On Track" },
-        { id: 2, code: "SBY-02 / TK-002", region: "Jawa Timur", name: "Toko Makmur Sentosa", target: 400000000, current: 200000000, status: "At Risk" },
-        { id: 3, code: "BDG-03 / TK-003", region: "Jawa Barat", name: "Toko Berkah Bersama", target: 450000000, current: 460000000, status: "Achieved" },
-        { id: 4, code: "JKT-01 / TK-004", region: "DKI Jakarta", name: "Toko Maju Terus", target: 300000000, current: 310000000, status: "Achieved" },
-    ];
+function WilayahPage({ stores = [] }) {
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
             <div className="flex justify-between items-center">
@@ -713,7 +708,8 @@ function StatistikPage() {
 
 /* ── PROSES PENJUALAN PAGE ── */
 function ProsesPenjualanPage({ allProspeks = [] }) {
-    
+    const displayProspeks = allProspeks;
+
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
             <div className="flex justify-between items-center">
@@ -725,10 +721,10 @@ function ProsesPenjualanPage({ allProspeks = [] }) {
             </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left min-w-[800px]">
+                    <table className="w-full text-left min-w-[980px]">
                         <thead>
                             <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500">
-                                {["No", "Nama Sales", "Customer", "Nilai", "Tanggal", "Status", "Aksi"].map(h => (
+                                {["No", "Kode Sales", "Nama Sales", "Nama Customer", "Kode Transaksi", "Harga Disepakati", "Status", "Aksi"].map(h => (
                                     <th key={h} className="px-5 py-3 font-semibold uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
@@ -737,10 +733,14 @@ function ProsesPenjualanPage({ allProspeks = [] }) {
                             {displayProspeks.map((item, i) => (
                                 <tr key={item.id} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/30 transition">
                                     <td className="px-5 py-3.5 text-sm text-gray-400">{i + 1}</td>
+                                    <td className="px-5 py-3.5 text-xs font-mono text-gray-500">{item.sales?.code || "-"}</td>
                                     <td className="px-5 py-3.5 font-medium text-gray-800 text-sm">{item.sales?.name || "Unknown"}</td>
-                                    <td className="px-5 py-3.5 text-sm text-gray-600">{item.nama}</td>
-                                    <td className="px-5 py-3.5 text-sm font-semibold text-gray-800">{fmt(item.deal?.value || 0)}</td>
-                                    <td className="px-5 py-3.5 text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString("id-ID")}</td>
+                                    <td className="px-5 py-3.5 text-sm text-gray-600">
+                                        <p>{item.customer?.name || item.nama}</p>
+                                        <p className="text-[10px] text-gray-400">{item.produk || "-"}</p>
+                                    </td>
+                                    <td className="px-5 py-3.5 text-xs font-mono text-gray-500">{item.kode_transaksi || "-"}</td>
+                                    <td className="px-5 py-3.5 text-sm font-semibold text-gray-800">{fmt(item.harga_disepakati || item.deal?.value || 0)}</td>
                                     <td className="px-5 py-3.5">
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${item.status === "win" ? "bg-green-50 text-green-700 border-green-200" : item.status === "lose" ? "bg-red-50 text-red-700 border-red-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>{item.status || "Lead"}</span>
                                     </td>
@@ -749,9 +749,9 @@ function ProsesPenjualanPage({ allProspeks = [] }) {
                                             onClick={() => router.visit(`/prospeks/${item.id}`)}
                                             className="text-blue-600 hover:text-blue-800 text-xs font-semibold"
                                         >
-                                            Detail
+                                            Rincian
                                         </button>
-                                </td>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -920,11 +920,10 @@ function DatabasePelangganPage({ allProspeks = [], totalRevenue = 0 }) {
                                         <p className="text-[10px] text-gray-400 font-medium uppercase">{customer.ordersCount} Orders</p>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${
-                                            customer.status === 'ACTIVE' 
-                                            ? 'bg-green-50 text-green-600 border border-green-100' 
-                                            : 'bg-blue-50 text-blue-600 border border-blue-100'
-                                        }`}>
+                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${customer.status === 'ACTIVE'
+                                                ? 'bg-green-50 text-green-600 border border-green-100'
+                                                : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                            }`}>
                                             {customer.status}
                                         </span>
                                     </td>
@@ -998,24 +997,32 @@ export default function Dashboard() {
     const [active, setActive] = useState("dashboard");
     const [collapsed, setCollapsed] = useState(false);
     const { props } = usePage();
-    console.log("PRODUCTS:", props.products);
 
     const meta = pageMeta[active] || pageMeta.dashboard;
 
     const renderPage = () => {
         switch (active) {
             case "dashboard": return <DashboardPage {...props} />;
-            case "sales": return <SalesPage {...props} />;
-            case "wilayah": return <WilayahPage {...props} />;
+            case "wilayah": return <WilayahPage stores={props.stores ?? []} />;
             case "statistik": return <StatistikPage {...props} />;
-            case "produk": return <ProdukPage {...props} />;
-            case "prospek": return <ProsesPenjualanPage {...props} />;
             case "customers": return <DatabasePelangganPage {...props} />;
             case "pengaturan":
             case "pengaturan-profil": return <PengaturanPage subPage="profil" />;
             case "pengaturan-sistem": return <PengaturanPage subPage="sistem" />;
             default: return <DashboardPage {...props} />;
-            
+            case "sales":
+                return <SalesPage allSales={props.allSales} />;
+
+            case "produk":
+                return <ProdukPage allProducts={props.allProducts} />;
+
+            case "prospek":
+                return (
+                    <ProsesPenjualanPage
+                        allProspeks={props.allProspeks}
+                    />
+                );
+
         }
     };
 

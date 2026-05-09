@@ -37,11 +37,35 @@ class ProspekController extends Controller
             'produk' => 'required',
         ]);
 
+        $customer = DB::table('customers')
+            ->where('nama', $request->nama)
+            ->where('no_hp', $request->no_hp)
+            ->first();
+
+        if (!$customer) {
+            $customerId = DB::table('customers')->insertGetId([
+                'nama' => $request->nama,
+                'no_hp' => $request->no_hp,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('customers')
+                ->where('id', $customerId)
+                ->update([
+                    'kode_customer' => 'CUST-' . str_pad((string) $customerId, 3, '0', STR_PAD_LEFT),
+                    'updated_at' => now(),
+                ]);
+        } else {
+            $customerId = $customer->id;
+        }
+
         Prospek::create([
             'nama' => $request->nama,
             'no_hp' => $request->no_hp,
             'produk' => $request->produk,
             'sales_id' => auth()->id(),
+            'customer_id' => $customerId,
             'stage' => 'lead'
         ]);
 
@@ -88,22 +112,49 @@ class ProspekController extends Controller
 {
     // 🔹 ambil data prospek (customer)
     $prospek = DB::table('prospeks')
-        ->join('regions', 'regions.id', '=', 'prospeks.region_id')
+        ->leftJoin('regions', 'regions.id', '=', 'prospeks.region_id')
+        ->leftJoin('users', 'users.id', '=', 'prospeks.sales_id')
+        ->leftJoin('customers', 'customers.id', '=', 'prospeks.customer_id')
         ->where('prospeks.id', $id)
-        ->select('prospeks.*', 'regions.nama_region')
+        ->select(
+            'prospeks.*',
+            'regions.nama_region',
+            'users.name as sales_name',
+            'users.kode_sales',
+            DB::raw('COALESCE(customers.nama, prospeks.nama) as customer_name')
+        )
         ->first();
 
     // 🔹 ambil timeline aktivitas
     $activities = DB::table('activities as a')
         ->leftJoin('products as p', 'p.id', '=', 'a.product_id')
         ->where('a.prospek_id', $id)
-        ->select('a.*', 'p.brand', 'p.type')
+        ->select(
+            'a.*',
+            'p.brand',
+            'p.type',
+            DB::raw("CONCAT('Pada tanggal ', DATE_FORMAT(a.tanggal, '%d-%m-%Y'), ' terjadi kesepakatan di harga ', FORMAT(COALESCE(a.harga,0), 0), ' dengan status ', UPPER(COALESCE(a.status, '-'))) as activity_summary")
+        )
         ->orderBy('tanggal', 'desc')
         ->get();
 
+    $activitySummary = DB::table('activities')
+        ->where('prospek_id', $id)
+        ->selectRaw('COUNT(*) as total_activities')
+        ->selectRaw("SUM(CASE WHEN status IN ('negosiasi','deal','win','lose') THEN 1 ELSE 0 END) as total_penawaran")
+        ->selectRaw("SUM(CASE WHEN status = 'follow_up' THEN 1 ELSE 0 END) as total_follow_up")
+        ->selectRaw("SUM(CASE WHEN status = 'win' THEN 1 ELSE 0 END) as total_win")
+        ->first();
+
     return Inertia::render('Admin/DetailProspek', [
         'prospek' => $prospek,
-        'activities' => $activities
+        'activities' => $activities,
+        'activitySummary' => [
+            'totalActivities' => (int) ($activitySummary->total_activities ?? 0),
+            'totalPenawaran' => (int) ($activitySummary->total_penawaran ?? 0),
+            'totalFollowUp' => (int) ($activitySummary->total_follow_up ?? 0),
+            'totalWin' => (int) ($activitySummary->total_win ?? 0),
+        ],
     ]);
 
     

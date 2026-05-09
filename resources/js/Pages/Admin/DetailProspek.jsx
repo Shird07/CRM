@@ -1,20 +1,7 @@
-import { usePage, useForm } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 
 export default function DetailProspek() {
-    const { prospek, activities } = usePage().props;
-
-    const { data, setData, post, processing } = useForm({
-        prospek_id: prospek.id,
-        product_id: "",
-        status: "",
-        harga: "",
-        note: ""
-    });
-
-    const submit = (e) => {
-        e.preventDefault();
-        post("/activities");
-    };
+    const { prospek, activities, activitySummary } = usePage().props;
 
     return (
         <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
@@ -22,11 +9,14 @@ export default function DetailProspek() {
             {/* 🔹 INFO CUSTOMER */}
             <div className="bg-white p-5 rounded-xl border shadow-sm">
                 <h2 className="text-lg font-bold text-gray-800">
-                    {prospek.nama}
+                    {prospek.customer_name || prospek.nama}
                 </h2>
                 <p className="text-sm text-gray-500">{prospek.no_hp}</p>
                 <p className="text-xs text-gray-400">
                     {prospek.nama_region}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                    Sales: {prospek.sales_name || "-"} ({prospek.kode_sales || "-"})
                 </p>
 
                 <span className={`mt-2 inline-block px-3 py-1 text-xs rounded-full 
@@ -37,51 +27,29 @@ export default function DetailProspek() {
                 </span>
             </div>
 
-            {/* 🔹 FORM TAMBAH AKTIVITAS */}
+            {/* 🔹 RINGKASAN AKTIVITAS SALES */}
             <div className="bg-white p-5 rounded-xl border shadow-sm">
                 <h3 className="font-semibold text-gray-700 mb-3">
-                    Tambah Aktivitas
+                    Ringkasan Aktivitas Sales
                 </h3>
-
-                <form onSubmit={submit} className="space-y-3">
-
-                    <select
-                        className="w-full border p-2 rounded"
-                        value={data.status}
-                        onChange={(e) => setData("status", e.target.value)}
-                    >
-                        <option value="">Pilih Status</option>
-                        <option value="lead">Lead</option>
-                        <option value="follow_up">Follow Up</option>
-                        <option value="negosiasi">Negosiasi</option>
-                        <option value="deal">Deal</option>
-                        <option value="win">Win</option>
-                        <option value="lose">Lose</option>
-                    </select>
-
-                    <input
-                        type="number"
-                        placeholder="Harga (opsional)"
-                        className="w-full border p-2 rounded"
-                        value={data.harga}
-                        onChange={(e) => setData("harga", e.target.value)}
-                    />
-
-                    <textarea
-                        placeholder="Catatan aktivitas..."
-                        className="w-full border p-2 rounded"
-                        value={data.note}
-                        onChange={(e) => setData("note", e.target.value)}
-                    />
-
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                        Simpan
-                    </button>
-                </form>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="border rounded-lg p-3">
+                        <p className="text-xs text-gray-400">Total Aktivitas</p>
+                        <p className="text-lg font-bold text-gray-800">{activitySummary?.totalActivities || 0}</p>
+                    </div>
+                    <div className="border rounded-lg p-3">
+                        <p className="text-xs text-gray-400">Total Penawaran</p>
+                        <p className="text-lg font-bold text-gray-800">{activitySummary?.totalPenawaran || 0}</p>
+                    </div>
+                    <div className="border rounded-lg p-3">
+                        <p className="text-xs text-gray-400">Follow Up</p>
+                        <p className="text-lg font-bold text-gray-800">{activitySummary?.totalFollowUp || 0}</p>
+                    </div>
+                    <div className="border rounded-lg p-3">
+                        <p className="text-xs text-gray-400">Closing Win</p>
+                        <p className="text-lg font-bold text-gray-800">{activitySummary?.totalWin || 0}</p>
+                    </div>
+                </div>
             </div>
 
             {/* 🔹 TIMELINE AKTIVITAS */}
@@ -111,6 +79,9 @@ export default function DetailProspek() {
                             )}
 
                             <p className="text-sm text-gray-600">
+                                {a.activity_summary}
+                            </p>
+                            <p className="text-sm text-gray-500">
                                 {a.note}
                             </p>
                         </div>

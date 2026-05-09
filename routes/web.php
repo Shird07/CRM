@@ -53,6 +53,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin', [AdminDashboardController::class, 'index'])
         ->name('admin.dashboard');
+    Route::get('/admin/sales/{id}', [AdminDashboardController::class, 'salesDetail'])
+        ->name('admin.sales.detail');
 
 });
 
