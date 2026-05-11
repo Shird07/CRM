@@ -1,94 +1,8 @@
 import { Link } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
+import AnimatedTextCycle from "@/components/ui/animated-text-cycle";
 
-/* ── Aurora Canvas ── */
-function AuroraCanvas() {
-    const canvasRef = useRef(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        let raf;
-
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        resize();
-        window.addEventListener("resize", resize);
-
-        // Aurora blobs — warna sesuai landing page asli: purple, orange, magenta, pink, violet, amber
-        const blobs = [
-            { x: 0.15, y: 0.55, rx: 0.55, ry: 0.45, color: [109, 40, 217],  sp: 0.00018, ph: 0.0  },
-            { x: 0.72, y: 0.45, rx: 0.60, ry: 0.50, color: [234, 88,  12],  sp: 0.00022, ph: 1.2  },
-            { x: 0.45, y: 0.70, rx: 0.50, ry: 0.40, color: [192, 38, 211],  sp: 0.00015, ph: 2.5  },
-            { x: 0.80, y: 0.20, rx: 0.45, ry: 0.35, color: [220, 38, 127],  sp: 0.00020, ph: 0.8  },
-            { x: 0.30, y: 0.25, rx: 0.40, ry: 0.38, color: [124, 58, 237],  sp: 0.00017, ph: 3.7  },
-            { x: 0.60, y: 0.80, rx: 0.42, ry: 0.32, color: [245, 158,  11], sp: 0.00019, ph: 1.9  },
-        ];
-
-        const draw = (ts) => {
-            const t = ts * 0.001;
-            const W = canvas.width;
-            const H = canvas.height;
-
-            ctx.fillStyle = "#0c0118";
-            ctx.fillRect(0, 0, W, H);
-
-            blobs.forEach((b) => {
-                const dx = Math.sin(t * b.sp * 60000 + b.ph) * 0.12;
-                const dy = Math.cos(t * b.sp * 47000 + b.ph * 1.3) * 0.10;
-                const cx = (b.x + dx) * W;
-                const cy = (b.y + dy) * H;
-                const rx = b.rx * W;
-                const ry = b.ry * H;
-                const alpha = 0.38 + Math.sin(t * b.sp * 30000 + b.ph) * 0.12;
-
-                const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
-                grad.addColorStop(0,   `rgba(${b.color[0]},${b.color[1]},${b.color[2]},${(alpha * 0.9).toFixed(3)})`);
-                grad.addColorStop(0.4, `rgba(${b.color[0]},${b.color[1]},${b.color[2]},${(alpha * 0.5).toFixed(3)})`);
-                grad.addColorStop(1,   `rgba(${b.color[0]},${b.color[1]},${b.color[2]},0)`);
-
-                ctx.save();
-                ctx.globalCompositeOperation = "screen";
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, rx, ry, t * b.sp * 15000, 0, Math.PI * 2);
-                ctx.fillStyle = grad;
-                ctx.fill();
-                ctx.restore();
-            });
-
-            // Vignette
-            const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.1, W / 2, H / 2, H * 1.1);
-            vig.addColorStop(0, "rgba(0,0,0,0)");
-            vig.addColorStop(1, "rgba(0,0,0,0.55)");
-            ctx.fillStyle = vig;
-            ctx.fillRect(0, 0, W, H);
-
-            raf = requestAnimationFrame(draw);
-        };
-
-        raf = requestAnimationFrame(draw);
-        return () => {
-            cancelAnimationFrame(raf);
-            window.removeEventListener("resize", resize);
-        };
-    }, []);
-
-    return (
-        <canvas
-            ref={canvasRef}
-            style={{
-                position: "fixed",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: 0,
-                display: "block",
-            }}
-        />
-    );
-}
+import { BackgroundPaths } from "@/components/ui/background-paths";
 
 /* ── Welcome Page ── */
 export default function Welcome() {
@@ -434,8 +348,10 @@ export default function Welcome() {
                 }
             `}</style>
 
-            <div className="lp-root">
-                <AuroraCanvas />
+            <div className="lp-root relative">
+                <div className="absolute inset-0 z-0">
+                    <BackgroundPaths />
+                </div>
                 <div className="lp-grain" />
 
                 <div className="lp-page">
@@ -458,9 +374,21 @@ export default function Welcome() {
                                 CRM untuk Tim Sales Indonesia
                             </div>
 
-                            <h1 className="lp-headline">
-                                Sederhanakan Proses,<br />
-                                <span className="lp-headline-accent">Maksimalkan Hasil</span>
+                            <h1 className="lp-headline" style={{ fontSize: "clamp(32px, 4.5vw, 52px)" }}>
+                                Your <AnimatedTextCycle 
+                                    words={[
+                                        "business",
+                                        "team",
+                                        "workflow",
+                                        "productivity",
+                                        "projects",
+                                        "analytics",
+                                        "dashboard",
+                                        "platform"
+                                    ]}
+                                    interval={3000}
+                                    className={"lp-headline-accent"} 
+                                /> <br /> deserves better tools
                             </h1>
 
                             <p className="lp-sub">
