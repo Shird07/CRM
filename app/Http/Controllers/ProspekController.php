@@ -3,38 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prospek;
+use App\Models\Product;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
-
 
 class ProspekController extends Controller
 {
-    // tampil semua prospek (sales)
     public function index()
     {
-        $prospeks = Prospek::where('sales_id', auth()->id())
-            ->latest()
-            ->get();
+        $prospeks = Prospek::with([
+            'product',
+            'region',
+            'sales'
+        ])
+        ->where('sales_id', auth()->id())
+        ->latest()
+        ->get();
 
         return Inertia::render('Sales/Prospek/Index', [
             'prospeks' => $prospeks
         ]);
     }
 
-    // form create
     public function create()
     {
-        return Inertia::render('Sales/Prospek/Create');
+        return Inertia::render('Sales/Prospek/Create', [
+            'products' => Product::all(),
+            'regions' => Region::all(),
+        ]);
     }
 
-    // simpan data
     public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required',
             'no_hp' => 'required',
-            'produk' => 'required',
+            'region_id' => 'required',
+            'product_id' => 'required',
         ]);
 
         $customer = DB::table('customers')
@@ -63,46 +69,84 @@ class ProspekController extends Controller
         Prospek::create([
             'nama' => $request->nama,
             'no_hp' => $request->no_hp,
-            'produk' => $request->produk,
+            'region_id' => $request->region_id,
+            'product_id' => $request->product_id,
+
+            'jenis_customer' => $request->jenis_customer,
+            'email' => $request->email,
+            'alamat' => $request->alamat,
+            'catatan' => $request->catatan,
+
             'sales_id' => auth()->id(),
-            'customer_id' => $customerId,
             'stage' => 'lead'
         ]);
 
-        return redirect('/sales/prospeks');
+        return redirect('/sales/prospek');
     }
 
-    // 🔥 UPDATE STAGE (PENTING BUAT PIPELINE)
-    public function updateStage(Request $request, $id)
+    public function show($id)
     {
-        $prospek = Prospek::findOrFail($id);
+        $prospek = Prospek::with([
+            'product',
+            'region',
+            'activities',
+        ])
+        ->where('sales_id', auth()->id())
+        ->findOrFail($id);
 
-        $prospek->update([
-            'stage' => $request->stage
+        return Inertia::render('Sales/Prospek/Show', [
+            'prospek' => $prospek,
         ]);
-
-        return back();
     }
 
-    // edit
     public function edit(Prospek $prospek)
     {
+        if ($prospek->sales_id !== auth()->id()) {
+            abort(403);
+        }
+
         return Inertia::render('Sales/Prospek/Edit', [
-            'prospek' => $prospek
+            'prospek' => $prospek,
+            'products' => Product::all(),
+            'regions' => Region::all(),
         ]);
     }
 
-    // update
     public function update(Request $request, Prospek $prospek)
     {
-        $prospek->update($request->all());
+        if ($prospek->sales_id !== auth()->id()) {
+            abort(403);
+        }
 
-        return redirect('/sales/prospeks');
+        $request->validate([
+            'nama' => 'required',
+            'no_hp' => 'required',
+            'region_id' => 'required',
+            'product_id' => 'required',
+            'status' => 'required',
+        ]);
+
+        $prospek->update([
+            'nama' => $request->nama,
+            'no_hp' => $request->no_hp,
+            'jenis_customer' => $request->jenis_customer,
+            'email' => $request->email,
+            'alamat' => $request->alamat,
+            'catatan' => $request->catatan,
+            'region_id' => $request->region_id,
+            'product_id' => $request->product_id,
+            'status' => $request->status,
+        ]);
+
+        return redirect('/sales/prospek');
     }
 
-    // delete
     public function destroy(Prospek $prospek)
     {
+        if ($prospek->sales_id !== auth()->id()) {
+            abort(403);
+        }
+
         $prospek->delete();
 
         return back();
@@ -112,49 +156,22 @@ class ProspekController extends Controller
 {
     // 🔹 ambil data prospek (customer)
     $prospek = DB::table('prospeks')
-        ->leftJoin('regions', 'regions.id', '=', 'prospeks.region_id')
-        ->leftJoin('users', 'users.id', '=', 'prospeks.sales_id')
-        ->leftJoin('customers', 'customers.id', '=', 'prospeks.customer_id')
+        ->join('regions', 'regions.id', '=', 'prospeks.region_id')
         ->where('prospeks.id', $id)
-        ->select(
-            'prospeks.*',
-            'regions.nama_region',
-            'users.name as sales_name',
-            'users.kode_sales',
-            DB::raw('COALESCE(customers.nama, prospeks.nama) as customer_name')
-        )
+        ->select('prospeks.*', 'regions.nama_region')
         ->first();
 
     // 🔹 ambil timeline aktivitas
     $activities = DB::table('activities as a')
         ->leftJoin('products as p', 'p.id', '=', 'a.product_id')
         ->where('a.prospek_id', $id)
-        ->select(
-            'a.*',
-            'p.brand',
-            'p.type',
-            DB::raw("CONCAT('Pada tanggal ', DATE_FORMAT(a.tanggal, '%d-%m-%Y'), ' terjadi kesepakatan di harga ', FORMAT(COALESCE(a.harga,0), 0), ' dengan status ', UPPER(COALESCE(a.status, '-'))) as activity_summary")
-        )
+        ->select('a.*', 'p.brand', 'p.type')
         ->orderBy('tanggal', 'desc')
         ->get();
 
-    $activitySummary = DB::table('activities')
-        ->where('prospek_id', $id)
-        ->selectRaw('COUNT(*) as total_activities')
-        ->selectRaw("SUM(CASE WHEN status IN ('negosiasi','deal','win','lose') THEN 1 ELSE 0 END) as total_penawaran")
-        ->selectRaw("SUM(CASE WHEN status = 'follow_up' THEN 1 ELSE 0 END) as total_follow_up")
-        ->selectRaw("SUM(CASE WHEN status = 'win' THEN 1 ELSE 0 END) as total_win")
-        ->first();
-
     return Inertia::render('Admin/DetailProspek', [
         'prospek' => $prospek,
-        'activities' => $activities,
-        'activitySummary' => [
-            'totalActivities' => (int) ($activitySummary->total_activities ?? 0),
-            'totalPenawaran' => (int) ($activitySummary->total_penawaran ?? 0),
-            'totalFollowUp' => (int) ($activitySummary->total_follow_up ?? 0),
-            'totalWin' => (int) ($activitySummary->total_win ?? 0),
-        ],
+        'activities' => $activities
     ]);
 
     

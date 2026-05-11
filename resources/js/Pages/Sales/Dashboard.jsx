@@ -1,96 +1,229 @@
-import { Bar } from 'react-chartjs-2';
+import { Head, usePage } from "@inertiajs/react";
+
+import SalesLayout from "@/Layouts/SalesLayout";
+
 import {
-    Chart as ChartJS,
-    BarElement,
-    CategoryScale,
-    LinearScale
-} from 'chart.js';
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Legend,
+} from "recharts";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale);
+/* =========================
+   FORMAT RUPIAH
+========================= */
 
-export default function Dashboard({
-    reminders = [],
-    totalProspek = 0,
-    totalWin = 0,
-    totalLose = 0,
-    conversion = 0,
-    chart = {}
-}) {
+const fmt = (n = 0) =>
+    new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+    }).format(n);
 
-    const data = {
-        labels: Object.keys(chart),
-        datasets: [
-            {
-                label: 'Deal per bulan',
-                data: Object.values(chart),
-                borderRadius: 8,
-            }
-        ]
-    };
+export default function Dashboard() {
+
+    const {
+        totalProspek = 0,
+        totalWin = 0,
+        totalLose = 0,
+        totalRevenue = 0,
+        conversion = 0,
+        reminders = [],
+        chartData = [],
+    } = usePage().props;
 
     return (
-        <div className="animate-fadeIn min-h-screen p-6 bg-gradient-to-br from-[#1e1b4b] via-[#3b0764] to-[#6d28d9] text-white">
+        <SalesLayout>
 
-            {/* HEADER */}
-            <h1 className="text-3xl font-bold mb-6">
-                🚀 Sales Dashboard
-            </h1>
+            <Head title="Sales Dashboard" />
 
-            {/* 🔔 REMINDER */}
-            <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-3">
-                    🔔 Follow Up Hari Ini
-                </h2>
+            <div className="min-h-full space-y-5 bg-gray-50 p-6">
 
-                {reminders.length === 0 && (
-                    <p className="text-gray-300">
-                        Tidak ada follow up hari ini
-                    </p>
-                )}
+                {/* KPI */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
-                <div className="grid md:grid-cols-2 gap-3">
-                    {reminders.map(r => (
-                        <div
-                            key={r.id}
-                            className="bg-white/10 backdrop-blur-lg p-4 rounded-xl border border-white/20 hover:scale-[1.02] transition"
-                        >
-                            <p className="font-bold">{r.prospek.nama}</p>
-                            <p className="text-sm text-gray-300">{r.catatan}</p>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+                        <p className="text-sm text-gray-500">
+                            Total Prospek
+                        </p>
+
+                        <h1 className="mt-3 text-3xl font-bold text-gray-800">
+                            {totalProspek}
+                        </h1>
+
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+                        <p className="text-sm text-gray-500">
+                            Closing Win
+                        </p>
+
+                        <h1 className="mt-3 text-3xl font-bold text-green-600">
+                            {totalWin}
+                        </h1>
+
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+                        <p className="text-sm text-gray-500">
+                            Total Revenue
+                        </p>
+
+                        <h1 className="mt-3 text-3xl font-bold text-blue-600">
+                            {fmt(totalRevenue)}
+                        </h1>
+
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+
+                        <p className="text-sm text-gray-500">
+                            Conversion Rate
+                        </p>
+
+                        <h1 className="mt-3 text-3xl font-bold text-purple-600">
+                            {conversion}%
+                        </h1>
+
+                    </div>
+
+                </div>
+
+                {/* CHART */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                    <div className="mb-5">
+
+                        <h2 className="text-lg font-bold text-gray-800">
+                            Sales Analytics
+                        </h2>
+
+                        <p className="text-sm text-gray-400">
+                            Grafik closing bulanan
+                        </p>
+
+                    </div>
+
+                    <ResponsiveContainer width="100%" height={300}>
+
+                        <AreaChart data={chartData}>
+
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                vertical={false}
+                                stroke="#f1f5f9"
+                            />
+
+                            <XAxis
+                                dataKey="bulan"
+                                axisLine={false}
+                                tickLine={false}
+                            />
+
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                            />
+
+                            <Tooltip />
+
+                            <Legend />
+
+                            <Area
+                                type="monotone"
+                                dataKey="closing"
+                                stroke="#3b82f6"
+                                fill="#93c5fd"
+                                strokeWidth={3}
+                            />
+
+                        </AreaChart>
+
+                    </ResponsiveContainer>
+
+                </div>
+
+                {/* REMINDER */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                    <div className="mb-5 flex items-center justify-between">
+
+                        <h2 className="text-lg font-bold text-gray-800">
+                            Reminder Follow Up
+                        </h2>
+
+                        <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-600">
+
+                            {reminders.length} Reminder
+
+                        </span>
+
+                    </div>
+
+                    {reminders.length > 0 ? (
+
+                        <div className="space-y-4">
+
+                            {reminders.map((item) => (
+
+                                <div
+                                    key={item.id}
+                                    className="flex items-center justify-between rounded-xl border border-gray-100 p-4 hover:bg-gray-50"
+                                >
+
+                                    <div>
+
+                                        <h3 className="font-semibold text-gray-800">
+                                            {item.prospek?.nama}
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            {item.note}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="text-right">
+
+                                        <p className="text-sm font-medium text-red-500">
+
+                                            {new Date(
+                                                item.next_follow_up
+                                            ).toLocaleDateString()}
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
                         </div>
-                    ))}
-                </div>
-            </div>
 
-            {/* 📊 STAT */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    ) : (
 
-                <div className="card">
-                    <p>Total Prospek</p>
-                    <h2>{totalProspek}</h2>
-                </div>
+                        <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center">
 
-                <div className="card bg-green-500/20">
-                    <p>Deal (WIN)</p>
-                    <h2>{totalWin}</h2>
-                </div>
+                            <p className="text-gray-500">
+                                Tidak ada reminder follow up
+                            </p>
 
-                <div className="card bg-red-500/20">
-                    <p>Lose</p>
-                    <h2>{totalLose}</h2>
-                </div>
+                        </div>
 
-                <div className="card bg-purple-500/20">
-                    <p>Conversion</p>
-                    <h2>{conversion}%</h2>
+                    )}
+
                 </div>
 
             </div>
 
-            {/* 📈 CHART */}
-            <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20">
-                <Bar data={data} />
-            </div>
-
-        </div>
+        </SalesLayout>
     );
 }
