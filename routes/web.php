@@ -4,11 +4,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\ProspekController;
+use App\Http\Controllers\ActivityController;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
 use Inertia\Inertia;
-use App\Http\Controllers\ActivityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,21 +29,21 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD REDIRECT (ROLE BASED)
+| DASHBOARD REDIRECT
 |--------------------------------------------------------------------------
 */
 
 Route::get('/dashboard', function () {
+
     $user = Auth::user();
 
     if ($user->role === 'admin') {
-        return redirect('/admin');
+        return redirect()->route('admin.dashboard');
     }
 
-    return redirect('/sales');
+    return redirect()->route('sales.dashboard');
 
 })->middleware(['auth'])->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -58,41 +60,97 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | SALES
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:sales'])->group(function () {
+Route::middleware(['auth', 'role:sales'])->prefix('sales')->group(function () {
 
-    Route::get('/sales', [SalesDashboardController::class, 'index'])
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/', [SalesDashboardController::class, 'index'])
         ->name('sales.dashboard');
 
     /*
-    |-----------------------------------
-    | PROSPEK (CRUD)
-    |-----------------------------------
+    |--------------------------------------------------------------------------
+    | PROSPEK
+    |--------------------------------------------------------------------------
     */
 
-    Route::get('/sales/prospeks', [ProspekController::class, 'index']);
-    Route::get('/sales/prospeks/create', [ProspekController::class, 'create']);
-    Route::post('/sales/prospeks', [ProspekController::class, 'store']);
-    Route::get('/sales/prospeks/{prospek}/edit', [ProspekController::class, 'edit']);
-    Route::put('/sales/prospeks/{prospek}', [ProspekController::class, 'update']);
-    Route::delete('/sales/prospeks/{prospek}', [ProspekController::class, 'destroy']);
+    Route::get('/prospek', [ProspekController::class, 'index'])
+        ->name('sales.prospek.index');
+
+    Route::get('/prospek/create', [ProspekController::class, 'create'])
+        ->name('sales.prospek.create');
+
+    Route::post('/prospek', [ProspekController::class, 'store'])
+        ->name('sales.prospek.store');
+
+    Route::get('/prospek/{prospek}', [ProspekController::class, 'show'])
+        ->name('sales.prospek.show');
+
+    Route::get('/prospek/{prospek}/edit', [ProspekController::class, 'edit'])
+        ->name('sales.prospek.edit');
+
+    Route::put('/prospek/{prospek}', [ProspekController::class, 'update'])
+        ->name('sales.prospek.update');
+
+    Route::delete('/prospek/{prospek}', [ProspekController::class, 'destroy'])
+        ->name('sales.prospek.destroy');
 
     /*
-    |-----------------------------------
-    | PIPELINE STAGE
-    |-----------------------------------
+    |--------------------------------------------------------------------------
+    | UPDATE STAGE
+    |--------------------------------------------------------------------------
     */
 
-    Route::post('/sales/prospek/{id}/stage', [ProspekController::class, 'updateStage']);
+    Route::post('/prospek/{id}/stage', [ProspekController::class, 'updateStage'])
+        ->name('sales.prospek.stage');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACTIVITIES
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/activities', function () {
+        return Inertia::render('Sales/Activities');
+    })->name('sales.activities');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FOLLOW UP
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/followup', function () {
+        return Inertia::render('Sales/FollowUp/index');
+    })->name('sales.followup');
+
+    Route::get('/followup/create', function () {
+        return Inertia::render('Sales/FollowUp/create');
+    })->name('sales.followup.create');
 
 });
 
+/*
+|--------------------------------------------------------------------------
+| ACTIVITY STORE
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::post('/activities', [ActivityController::class, 'store'])
+        ->name('activities.store');
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -101,17 +159,22 @@ Route::middleware(['auth', 'role:sales'])->group(function () {
 */
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
 });
 
-Route::post('/activities', [ActivityController::class, 'store']);
-Route::get('/prospeks/{id}', [ProspekController::class, 'show']);
 /*
 |--------------------------------------------------------------------------
 | AUTH
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
