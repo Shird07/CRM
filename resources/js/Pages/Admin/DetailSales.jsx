@@ -62,12 +62,6 @@ export default function DetailSales() {
                             <span className="text-sm font-medium text-gray-800 mt-0.5">{item.value}</span>
                         </div>
                     ))}
-                    <div className="py-3 flex flex-col">
-                        <span className="text-xs text-gray-400">Relasi Regional</span>
-                        <span className="text-sm font-medium text-gray-800 mt-0.5">
-                            Satu regional dapat banyak sales, satu sales hanya satu regional.
-                        </span>
-                    </div>
                 </div>
             </div>
 

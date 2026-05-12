@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('activities', function (Blueprint $table) {
-
-            // Jadwal follow up berikutnya
-            $table->date('next_follow_up')
-                ->nullable()
-                ->after('tanggal');
-
+            if (!Schema::hasColumn('activities', 'next_follow_up')) {
+                // Jadwal follow up berikutnya
+                $table->date('next_follow_up')
+                    ->nullable()
+                    ->after('tanggal');
+            }
         });
     }
 

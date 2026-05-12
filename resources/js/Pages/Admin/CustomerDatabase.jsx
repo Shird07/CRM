@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { router } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Package,
@@ -113,7 +114,7 @@ const CustomerDatabase = () => {
                             <Settings size={18} />
                             Settings
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                        <button onClick={() => router.post('/logout')} className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
                             <LogOut size={18} />
                             Logout
                         </button>

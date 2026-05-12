@@ -169,7 +169,38 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
 
       {/* Footer */}
       <div className="border-t border-gray-100 py-3 px-3 space-y-0.5">
-        {/* ... Pengaturan tetap sama ... */}
+        <button
+          onClick={() => {
+            if (collapsed) {
+              setCollapsed(false);
+              setSettingsOpen(true);
+            } else {
+              setSettingsOpen(!settingsOpen);
+            }
+          }}
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition"
+        >
+          <div className="flex items-center gap-3">
+            <Settings size={16} className="text-gray-400" />
+            <span className={`sidebar-label ${collapsed ? "hidden-label" : "visible-label"}`}>Pengaturan</span>
+          </div>
+          {!collapsed && (
+            <ChevronDown size={14} className={`transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
+          )}
+        </button>
+
+        {settingsOpen && !collapsed && (
+          <div className="pl-7 space-y-1">
+            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition">
+              <User size={14} />
+              <span>Profile</span>
+            </button>
+            <button onClick={() => router.post('/logout')} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition">
+              <LogOut size={14} />
+              <span>Logout</span>
+            </button>
+          </div>
+        )}
 
         <button
           onClick={handleCollapse}
@@ -746,7 +777,7 @@ function ProsesPenjualanPage({ allProspeks = [] }) {
                                     </td>
                                     <td className="px-5 py-3.5">
                                         <button
-                                            onClick={() => router.visit(`/prospeks/${item.id}`)}
+                                            onClick={() => router.visit(`/admin/prospek/${item.id}`)}
                                             className="text-blue-600 hover:text-blue-800 text-xs font-semibold"
                                         >
                                             Rincian

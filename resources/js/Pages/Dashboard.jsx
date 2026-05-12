@@ -202,7 +202,7 @@ function Sidebar({
 
                         </button>
 
-                        <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition hover:bg-red-50 hover:text-red-700">
+                        <button onClick={() => router.post('/logout')} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition hover:bg-red-50 hover:text-red-700">
 
                             <LogOut size={14} />
 

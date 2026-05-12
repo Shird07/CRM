@@ -57,6 +57,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('admin.dashboard');
     Route::get('/admin/sales/{id}', [AdminDashboardController::class, 'salesDetail'])
         ->name('admin.sales.detail');
+    Route::get('/admin/prospek/{id}', [ProspekController::class, 'showAdmin'])
+        ->name('admin.prospek.detail');
 
 });
 

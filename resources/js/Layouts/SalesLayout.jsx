@@ -178,13 +178,13 @@ export default function SalesLayout({ children }) {
 
                             </button>
 
-                            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition hover:bg-red-50">
+                            <Link href="/logout" method="post" as="button" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition hover:bg-red-50">
 
                                 <LogOut size={14} />
 
                                 <span>Logout</span>
 
-                            </button>
+                            </Link>
 
                         </div>
 

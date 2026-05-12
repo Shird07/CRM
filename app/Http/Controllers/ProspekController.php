@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Region;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class ProspekController extends Controller
 {
@@ -152,7 +153,7 @@ class ProspekController extends Controller
         return back();
     }
 
-    public function show($id)
+    public function showAdmin($id)
 {
     // 🔹 ambil data prospek (customer)
     $prospek = DB::table('prospeks')
