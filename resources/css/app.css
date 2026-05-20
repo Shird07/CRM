@@ -46,3 +46,81 @@
   transform: translateY(-50%);
   transition: opacity 0.15s;
 }
+
+/* ── PREMIUM DARK THEME OVERRIDES ── */
+.dark, .dark body {
+  background-color: #09090b !important; /* zinc-950 */
+  color: #f4f4f5 !important;
+}
+
+.dark .bg-white, 
+.dark aside, 
+.dark header,
+.dark .bg-white\/80 {
+  background-color: #121214 !important; /* sleek custom dark zinc-900 */
+}
+
+.dark .bg-gray-50, 
+.dark main,
+.dark .bg-gray-50\/50,
+.dark .min-h-full {
+  background-color: #09090b !important; /* zinc-950 */
+}
+
+.dark .border-gray-100, 
+.dark .border-gray-200, 
+.dark .border-r,
+.dark .border-b,
+.dark .border-t,
+.dark .border {
+  border-color: #1f1f23 !important; /* sleek deep border zinc-800 */
+}
+
+.dark .text-gray-800, 
+.dark .text-gray-700, 
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark h4, 
+.dark th {
+  color: #f4f4f5 !important; /* zinc-100 */
+}
+
+.dark .text-gray-600, 
+.dark .text-gray-500,
+.dark td {
+  color: #a1a1aa !important; /* zinc-400 */
+}
+
+.dark .text-gray-400 {
+  color: #71717a !important; /* zinc-500 */
+}
+
+/* Hover effects */
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover,
+.dark tr:hover {
+  background-color: #1c1c1f !important; /* zinc-800 hover */
+  color: #ffffff !important;
+}
+
+/* Tables and cards */
+.dark table {
+  background-color: #121214 !important;
+}
+
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+/* Recharts grid lines */
+.dark .recharts-cartesian-grid line {
+  stroke: #1f1f23 !important;
+}
+.dark .recharts-text {
+  fill: #a1a1aa !important;
+}

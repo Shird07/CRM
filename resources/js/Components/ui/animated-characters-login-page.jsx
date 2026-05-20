@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,16 +149,12 @@ const EyeBall = ({
   );
 };
 
-export default function Login({ status, canResetPassword }) {
+export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-
-  // Inertia Form Hook
-  const { data, setData, post, processing, errors, reset } = useForm({
-    email: '',
-    password: '',
-    remember: false,
-  });
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const [mouseY, setMouseY] = useState(0);
   const [isPurpleBlinking, setIsPurpleBlinking] = useState(false);
@@ -238,7 +232,7 @@ export default function Login({ status, canResetPassword }) {
 
   // Purple sneaky peeking animation when typing password and it's visible
   useEffect(() => {
-    if (data.password.length > 0 && showPassword) {
+    if (password.length > 0 && showPassword) {
       const schedulePeek = () => {
         const peekInterval = setTimeout(() => {
           setIsPurplePeeking(true);
@@ -254,10 +248,10 @@ export default function Login({ status, canResetPassword }) {
     } else {
       setIsPurplePeeking(false);
     }
-  }, [data.password, showPassword, isPurplePeeking]);
+  }, [password, showPassword, isPurplePeeking]);
 
   const calculatePosition = (ref) => {
-    if (!ref.current) return { faceX: 0, faceY: 0, bodySkew: 0 };
+    if (!ref.current) return { faceX: 0, faceY: 0, bodyRotation: 0 };
 
     const rect = ref.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -278,31 +272,35 @@ export default function Login({ status, canResetPassword }) {
   const yellowPos = calculatePosition(yellowRef);
   const orangePos = calculatePosition(orangeRef);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    post(route('login'), {
-      onFinish: () => reset('password'),
-    });
+    setError("");
+    setIsLoading(true);
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (email === "erik@gmail.com" && password === "1234") {
+      console.log("✅ Login successful!");
+      alert("Login successful! Welcome, Erik!");
+    } else {
+      setError("Invalid email or password. Please try again.");
+      console.log("❌ Login failed");
+    }
+
+    setIsLoading(false);
   };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-black">
-      <Head title="Login" />
-
       {/* Left Content Section */}
-      <motion.div 
-        initial={{ opacity: 0, x: -80 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: "spring", stiffness: 70, damping: 15, delay: 0.1 }}
-        className="relative hidden lg:flex flex-col justify-between bg-[#E5E5E5] p-12 text-[#2D2D2D]"
-      >
+      <div className="relative hidden lg:flex flex-col justify-between bg-[#E5E5E5] p-12 text-[#2D2D2D]">
         <div className="relative z-20">
-          <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-black">
+          <div className="flex items-center gap-2 text-lg font-semibold text-black">
             <div className="size-8 rounded-lg bg-black/5 flex items-center justify-center">
               <Sparkles className="size-4 text-black" />
             </div>
             <span>Gestion</span>
-          </Link>
+          </div>
         </div>
 
         <div className="relative z-20 flex items-end justify-center h-[500px]">
@@ -315,13 +313,13 @@ export default function Login({ status, canResetPassword }) {
               style={{
                 left: '70px',
                 width: '180px',
-                height: (isTyping || (data.password.length > 0 && !showPassword)) ? '440px' : '400px',
+                height: (isTyping || (password.length > 0 && !showPassword)) ? '440px' : '400px',
                 backgroundColor: '#6C3FF5',
                 borderRadius: '10px 10px 0 0',
                 zIndex: 1,
-                transform: (data.password.length > 0 && showPassword)
+                transform: (password.length > 0 && showPassword)
                   ? `skewX(0deg)`
-                  : (isTyping || (data.password.length > 0 && !showPassword))
+                  : (isTyping || (password.length > 0 && !showPassword))
                     ? `skewX(${(purplePos.bodySkew || 0) - 12}deg) translateX(40px)` 
                     : `skewX(${purplePos.bodySkew || 0}deg)`,
                 transformOrigin: 'bottom center',
@@ -331,8 +329,8 @@ export default function Login({ status, canResetPassword }) {
               <div 
                 className="absolute flex gap-8 transition-all duration-700 ease-in-out"
                 style={{
-                  left: (data.password.length > 0 && showPassword) ? `${20}px` : isLookingAtEachOther ? `${55}px` : `${45 + purplePos.faceX}px`,
-                  top: (data.password.length > 0 && showPassword) ? `${35}px` : isLookingAtEachOther ? `${65}px` : `${40 + purplePos.faceY}px`,
+                  left: (password.length > 0 && showPassword) ? `${20}px` : isLookingAtEachOther ? `${55}px` : `${45 + purplePos.faceX}px`,
+                  top: (password.length > 0 && showPassword) ? `${35}px` : isLookingAtEachOther ? `${65}px` : `${40 + purplePos.faceY}px`,
                 }}
               >
                 <EyeBall 
@@ -342,8 +340,8 @@ export default function Login({ status, canResetPassword }) {
                   eyeColor="white" 
                   pupilColor="#2D2D2D" 
                   isBlinking={isPurpleBlinking}
-                  forceLookX={(data.password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
-                  forceLookY={(data.password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
+                  forceLookX={(password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
+                  forceLookY={(password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
                 />
                 <EyeBall 
                   size={18} 
@@ -352,8 +350,8 @@ export default function Login({ status, canResetPassword }) {
                   eyeColor="white" 
                   pupilColor="#2D2D2D" 
                   isBlinking={isPurpleBlinking}
-                  forceLookX={(data.password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
-                  forceLookY={(data.password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
+                  forceLookX={(password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
+                  forceLookY={(password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
                 />
               </div>
             </div>
@@ -369,11 +367,11 @@ export default function Login({ status, canResetPassword }) {
                 backgroundColor: '#2D2D2D',
                 borderRadius: '8px 8px 0 0',
                 zIndex: 2,
-                transform: (data.password.length > 0 && showPassword)
+                transform: (password.length > 0 && showPassword)
                   ? `skewX(0deg)`
                   : isLookingAtEachOther
                     ? `skewX(${(blackPos.bodySkew || 0) * 1.5 + 10}deg) translateX(20px)`
-                    : (isTyping || (data.password.length > 0 && !showPassword))
+                    : (isTyping || (password.length > 0 && !showPassword))
                       ? `skewX(${(blackPos.bodySkew || 0) * 1.5}deg)` 
                       : `skewX(${blackPos.bodySkew || 0}deg)`,
                 transformOrigin: 'bottom center',
@@ -383,8 +381,8 @@ export default function Login({ status, canResetPassword }) {
               <div 
                 className="absolute flex gap-6 transition-all duration-700 ease-in-out"
                 style={{
-                  left: (data.password.length > 0 && showPassword) ? `${10}px` : isLookingAtEachOther ? `${32}px` : `${26 + blackPos.faceX}px`,
-                  top: (data.password.length > 0 && showPassword) ? `${28}px` : isLookingAtEachOther ? `${12}px` : `${32 + blackPos.faceY}px`,
+                  left: (password.length > 0 && showPassword) ? `${10}px` : isLookingAtEachOther ? `${32}px` : `${26 + blackPos.faceX}px`,
+                  top: (password.length > 0 && showPassword) ? `${28}px` : isLookingAtEachOther ? `${12}px` : `${32 + blackPos.faceY}px`,
                 }}
               >
                 <EyeBall 
@@ -394,8 +392,8 @@ export default function Login({ status, canResetPassword }) {
                   eyeColor="white" 
                   pupilColor="#2D2D2D" 
                   isBlinking={isBlackBlinking}
-                  forceLookX={(data.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
-                  forceLookY={(data.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
+                  forceLookX={(password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
+                  forceLookY={(password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
                 />
                 <EyeBall 
                   size={16} 
@@ -404,8 +402,8 @@ export default function Login({ status, canResetPassword }) {
                   eyeColor="white" 
                   pupilColor="#2D2D2D" 
                   isBlinking={isBlackBlinking}
-                  forceLookX={(data.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
-                  forceLookY={(data.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
+                  forceLookX={(password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
+                  forceLookY={(password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
                 />
               </div>
             </div>
@@ -421,7 +419,7 @@ export default function Login({ status, canResetPassword }) {
                 zIndex: 3,
                 backgroundColor: '#FF9B6B',
                 borderRadius: '120px 120px 0 0',
-                transform: (data.password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${orangePos.bodySkew || 0}deg)`,
+                transform: (password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${orangePos.bodySkew || 0}deg)`,
                 transformOrigin: 'bottom center',
               }}
             >
@@ -429,12 +427,12 @@ export default function Login({ status, canResetPassword }) {
               <div 
                 className="absolute flex gap-8 transition-all duration-200 ease-out"
                 style={{
-                  left: (data.password.length > 0 && showPassword) ? `${50}px` : `${82 + (orangePos.faceX || 0)}px`,
-                  top: (data.password.length > 0 && showPassword) ? `${85}px` : `${90 + (orangePos.faceY || 0)}px`,
+                  left: (password.length > 0 && showPassword) ? `${50}px` : `${82 + (orangePos.faceX || 0)}px`,
+                  top: (password.length > 0 && showPassword) ? `${85}px` : `${90 + (orangePos.faceY || 0)}px`,
                 }}
               >
-                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(data.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(data.password.length > 0 && showPassword) ? -4 : undefined} />
-                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(data.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(data.password.length > 0 && showPassword) ? -4 : undefined} />
+                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(password.length > 0 && showPassword) ? -4 : undefined} />
+                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(password.length > 0 && showPassword) ? -4 : undefined} />
               </div>
             </div>
 
@@ -449,7 +447,7 @@ export default function Login({ status, canResetPassword }) {
                 backgroundColor: '#E8D754',
                 borderRadius: '70px 70px 0 0',
                 zIndex: 4,
-                transform: (data.password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${yellowPos.bodySkew || 0}deg)`,
+                transform: (password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${yellowPos.bodySkew || 0}deg)`,
                 transformOrigin: 'bottom center',
               }}
             >
@@ -457,19 +455,19 @@ export default function Login({ status, canResetPassword }) {
               <div 
                 className="absolute flex gap-6 transition-all duration-200 ease-out"
                 style={{
-                  left: (data.password.length > 0 && showPassword) ? `${20}px` : `${52 + (yellowPos.faceX || 0)}px`,
-                  top: (data.password.length > 0 && showPassword) ? `${35}px` : `${40 + (yellowPos.faceY || 0)}px`,
+                  left: (password.length > 0 && showPassword) ? `${20}px` : `${52 + (yellowPos.faceX || 0)}px`,
+                  top: (password.length > 0 && showPassword) ? `${35}px` : `${40 + (yellowPos.faceY || 0)}px`,
                 }}
               >
-                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(data.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(data.password.length > 0 && showPassword) ? -4 : undefined} />
-                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(data.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(data.password.length > 0 && showPassword) ? -4 : undefined} />
+                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(password.length > 0 && showPassword) ? -4 : undefined} />
+                <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(password.length > 0 && showPassword) ? -4 : undefined} />
               </div>
               {/* Horizontal line for mouth */}
               <div 
                 className="absolute w-20 h-[4px] bg-[#2D2D2D] rounded-full transition-all duration-200 ease-out"
                 style={{
-                  left: (data.password.length > 0 && showPassword) ? `${10}px` : `${40 + (yellowPos.faceX || 0)}px`,
-                  top: (data.password.length > 0 && showPassword) ? `${88}px` : `${88 + (yellowPos.faceY || 0)}px`,
+                  left: (password.length > 0 && showPassword) ? `${10}px` : `${40 + (yellowPos.faceX || 0)}px`,
+                  top: (password.length > 0 && showPassword) ? `${88}px` : `${88 + (yellowPos.faceY || 0)}px`,
                 }}
               />
             </div>
@@ -487,15 +485,10 @@ export default function Login({ status, canResetPassword }) {
             Contact
           </a>
         </div>
-      </motion.div>
+      </div>
 
       {/* Right Login Section */}
-      <motion.div 
-        initial={{ opacity: 0, x: 80 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: "spring", stiffness: 70, damping: 15, delay: 0.2 }}
-        className="flex items-center justify-center p-8 bg-black text-white"
-      >
+      <div className="flex items-center justify-center p-8 bg-black text-white">
         <div className="w-full max-w-[420px]">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 text-lg font-semibold mb-12">
@@ -511,13 +504,6 @@ export default function Login({ status, canResetPassword }) {
             <p className="text-zinc-400 text-sm">Please enter your details</p>
           </div>
 
-          {/* Status Message */}
-          {status && (
-            <div className="p-3 text-sm text-green-400 bg-green-950/20 border border-green-900/30 rounded-lg text-center font-medium mb-5">
-              {status}
-            </div>
-          )}
-
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
@@ -526,20 +512,14 @@ export default function Login({ status, canResetPassword }) {
                 id="email"
                 type="email"
                 placeholder="anna@gmail.com"
-                value={data.email}
+                value={email}
                 autoComplete="off"
-                onChange={(e) => setData('email', e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
                 required
-                className={cn(
-                  "h-12 bg-black border-zinc-800 text-white placeholder-zinc-600 focus:border-zinc-500 focus:ring-0 focus:ring-offset-0",
-                  errors.email && "border-red-500 focus:border-red-500"
-                )}
+                className="h-12 bg-black border-zinc-800 text-white placeholder-zinc-600 focus:border-zinc-500 focus:ring-0 focus:ring-offset-0"
               />
-              {errors.email && (
-                <p className="text-xs text-red-500 font-medium mt-1">{errors.email}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -549,13 +529,10 @@ export default function Login({ status, canResetPassword }) {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  value={data.password}
-                  onChange={(e) => setData('password', e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
-                  className={cn(
-                    "h-12 pr-10 bg-black border-zinc-800 text-white placeholder-zinc-600 focus:border-zinc-500 focus:ring-0 focus:ring-offset-0",
-                    errors.password && "border-red-500 focus:border-red-500"
-                  )}
+                  className="h-12 pr-10 bg-black border-zinc-800 text-white placeholder-zinc-600 focus:border-zinc-500 focus:ring-0 focus:ring-offset-0"
                 />
                 <button
                   type="button"
@@ -569,17 +546,12 @@ export default function Login({ status, canResetPassword }) {
                   )}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-xs text-red-500 font-medium mt-1">{errors.password}</p>
-              )}
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="remember" 
-                  checked={data.remember}
-                  onCheckedChange={(checked) => setData('remember', checked)}
                   className="border-zinc-700 bg-black data-[state=checked]:bg-white data-[state=checked]:text-black"
                 />
                 <Label
@@ -589,23 +561,27 @@ export default function Login({ status, canResetPassword }) {
                   Remember for 30 days
                 </Label>
               </div>
-              {canResetPassword && (
-                <Link
-                  href={route('password.request')}
-                  className="text-sm text-zinc-300 hover:text-white font-medium"
-                >
-                  Forgot password?
-                </Link>
-              )}
+              <a
+                href="#"
+                className="text-sm text-zinc-300 hover:text-white font-medium"
+              >
+                Forgot password?
+              </a>
             </div>
+
+            {error && (
+              <div className="p-3 text-sm text-red-400 bg-red-950/20 border border-red-900/30 rounded-lg">
+                {error}
+              </div>
+            )}
 
             <Button 
               type="submit" 
               className="w-full h-12 text-base font-semibold bg-[#E5E5E5] text-black hover:bg-zinc-200 border-none transition-colors" 
               size="lg" 
-              disabled={processing}
+              disabled={isLoading}
             >
-              {processing ? "Signing in..." : "Log in"}
+              {isLoading ? "Signing in..." : "Log in"}
             </Button>
           </form>
 
@@ -624,12 +600,14 @@ export default function Login({ status, canResetPassword }) {
           {/* Sign Up Link */}
           <div className="text-center text-sm text-zinc-400 mt-8">
             Don't have an account?{" "}
-            <Link href="/register" className="text-white font-medium hover:underline">
+            <a href="#" className="text-white font-medium hover:underline">
               Sign Up
-            </Link>
+            </a>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
+
+export const Component = LoginPage;

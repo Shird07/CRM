@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Prospek extends Model
 {
+    protected $primaryKey = 'idProspek';
+
     protected $fillable = [
     'nama',
     'no_hp',

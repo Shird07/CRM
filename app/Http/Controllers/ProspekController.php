@@ -157,14 +157,14 @@ class ProspekController extends Controller
 {
     // 🔹 ambil data prospek (customer)
     $prospek = DB::table('prospeks')
-        ->join('regions', 'regions.id', '=', 'prospeks.region_id')
-        ->where('prospeks.id', $id)
+        ->join('regions', 'regions.idRegion', '=', 'prospeks.region_id')
+        ->where('prospeks.idProspek', $id)
         ->select('prospeks.*', 'regions.nama_region')
         ->first();
 
     // 🔹 ambil timeline aktivitas
     $activities = DB::table('activities as a')
-        ->leftJoin('products as p', 'p.id', '=', 'a.product_id')
+        ->leftJoin('products as p', 'p.idProduk', '=', 'a.product_id')
         ->where('a.prospek_id', $id)
         ->select('a.*', 'p.brand', 'p.type')
         ->orderBy('tanggal', 'desc')

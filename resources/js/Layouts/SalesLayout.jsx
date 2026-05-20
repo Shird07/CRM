@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Link, usePage } from "@inertiajs/react";
+import ProfileButton from "@/Components/ProfileButton";
 
 import {
     LayoutDashboard,
@@ -23,6 +24,16 @@ export default function SalesLayout({ children }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     const { auth } = usePage().props;
+
+    useEffect(() => {
+        const isDark = localStorage.getItem('theme') === 'dark' || 
+                       (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, []);
 
     /*
     |--------------------------------------------------------------------------
@@ -232,40 +243,15 @@ export default function SalesLayout({ children }) {
                     </div>
 
                     <div className="flex items-center gap-3">
-
                         <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100">
 
                             <Search size={16} />
 
                         </button>
 
-                        <button className="relative flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100">
+                        <div className="pl-3 border-l border-gray-200">
 
-                            <Bell size={16} />
-
-                            <span className="absolute right-1 top-1 h-2 w-2 rounded-full border-2 border-white bg-blue-500" />
-
-                        </button>
-
-                        <div className="flex items-center gap-2 border-l border-gray-200 pl-3">
-
-                            <div className="hidden text-right sm:block">
-
-                                <p className="text-xs font-semibold text-gray-700">
-                                    {auth?.user?.name}
-                                </p>
-
-                                <p className="text-[10px] text-gray-400">
-                                    Sales
-                                </p>
-
-                            </div>
-
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-xs font-bold text-white">
-
-                                {auth?.user?.name?.charAt(0)}
-
-                            </div>
+                            <ProfileButton />
 
                         </div>
 

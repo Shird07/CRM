@@ -49,7 +49,7 @@ export default function DetailSales() {
                         )}
                     </div>
                     <h2 className="text-lg font-bold text-gray-800 mt-3">{sales.name}</h2>
-                    <p className="text-xs text-gray-400">ID Sales: {sales.id || "-"}</p>
+                    <p className="text-xs text-gray-400">ID Sales: {sales.idSales ?? sales.id ?? "-"}</p>
                 </div>
             </div>
 

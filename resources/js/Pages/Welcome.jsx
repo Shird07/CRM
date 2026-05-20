@@ -16,7 +16,7 @@ export default function Welcome() {
                 .lp-root {
                     font-family: 'Plus Jakarta Sans', sans-serif;
                     min-height: 100vh;
-                    background: #0c0118;
+                    background: #000000;
                     color: #fff;
                     overflow-x: hidden;
                     position: relative;
@@ -360,10 +360,10 @@ export default function Welcome() {
                             Gest<span className="lp-logo-dot" />on
                         </Link>
                         <div className="lp-nav-links">
-                            <Link href="/login"    className="lp-nav-link">Sign in</Link>
+                            <Link href="/login" className="lp-nav-link">Sign in</Link>
                             <Link href="/register" className="lp-nav-link lp-nav-signup">Sign up free</Link>
-                            <Link href="/about"    className="lp-nav-link">About</Link>
-                            <Link href="/contact"  className="lp-nav-link">Contact Us</Link>
+                            <Link href="/about" className="lp-nav-link">About</Link>
+                            <Link href="/contact" className="lp-nav-link">Contact Us</Link>
                         </div>
                     </nav>
 
@@ -375,7 +375,7 @@ export default function Welcome() {
                             </div>
 
                             <h1 className="lp-headline" style={{ fontSize: "clamp(32px, 4.5vw, 52px)" }}>
-                                Your <AnimatedTextCycle 
+                                Your <AnimatedTextCycle
                                     words={[
                                         "business",
                                         "team",
@@ -387,7 +387,7 @@ export default function Welcome() {
                                         "platform"
                                     ]}
                                     interval={3000}
-                                    className={"lp-headline-accent"} 
+                                    className={"lp-headline-accent"}
                                 /> <br /> deserves better tools
                             </h1>
 

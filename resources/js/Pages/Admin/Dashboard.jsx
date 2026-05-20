@@ -1,11 +1,13 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useRef } from "react";
 import { usePage } from "@inertiajs/react";
 import { router } from '@inertiajs/react';
+import ProfileButton from "@/Components/ProfileButton";
+import OverviewStatsGrid from "@/Components/Admin/OverviewStatsGrid";
 import {
-    LayoutDashboard, Users, MapPin, BarChart2, ShoppingBag,
-    TrendingUp, Settings, ChevronLeft, ChevronRight, Bell,
-    Search, LogOut, User, Sliders, ChevronDown, ArrowUpRight,
+    LayoutDashboard, Users, MapPin, ShoppingBag,
+    TrendingUp, ChevronLeft, ChevronRight,
+    Search, Sliders, ArrowUpRight,
     ArrowDownRight, Target, AlertTriangle, Star, Package,
     RefreshCw, ExternalLink, Menu, X,
 } from "lucide-react";
@@ -20,7 +22,7 @@ const fmt = (n = 0) =>
         style: "currency", currency: "IDR", maximumFractionDigits: 0,
     }).format(n);
 
-/* ── MINI BAR INLINE ── */
+/* â”€â”€ MINI BAR INLINE â”€â”€ */
 function MiniBar({ data, color }) {
     const max = Math.max(...data);
     return (
@@ -41,7 +43,7 @@ function MiniBar({ data, color }) {
     );
 }
 
-/* ── DONUT CHART ── */
+/* â”€â”€ DONUT CHART â”€â”€ */
 function DonutChart({ pct }) {
     const r = 42, c = 2 * Math.PI * r;
     const dash = (pct / 100) * c;
@@ -64,7 +66,7 @@ function DonutChart({ pct }) {
     );
 }
 
-/* ── STARS ── */
+/* â”€â”€ STARS â”€â”€ */
 function Stars({ n }) {
     return (
         <div className="flex gap-0.5">
@@ -76,20 +78,17 @@ function Stars({ n }) {
     );
 }
 
-/* ── SIDEBAR ── */
+/* â”€â”€ SIDEBAR â”€â”€ */
 const menuItems = [
     { key: "dashboard", label: "Overview", icon: LayoutDashboard },
     { key: "sales", label: "Akun Sales", icon: Users },
     { key: "wilayah", label: "Wilayah", icon: MapPin },
-    { key: "statistik", label: "Statistik", icon: BarChart2 },
     { key: "produk", label: "Produk", icon: ShoppingBag },
     { key: "prospek", label: "Proses Penjualan", icon: TrendingUp },
-    { key: "customers", label: "Database Pelanggan", icon: Users },
 ];
 
 
 function Sidebar({ active, setActive, collapsed, setCollapsed }) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [spinClass, setSpinClass] = useState("");
   const spinTimeout = useRef(null);
 
@@ -103,10 +102,9 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
 
   return (
     <aside
-      className="flex flex-col border-r border-gray-200 bg-white"
+      className="flex h-screen shrink-0 flex-col border-r border-gray-200 bg-white"
       style={{
         width: collapsed ? 72 : 220,
-        minHeight: "100vh",
         transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
@@ -170,39 +168,6 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
       {/* Footer */}
       <div className="border-t border-gray-100 py-3 px-3 space-y-0.5">
         <button
-          onClick={() => {
-            if (collapsed) {
-              setCollapsed(false);
-              setSettingsOpen(true);
-            } else {
-              setSettingsOpen(!settingsOpen);
-            }
-          }}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition"
-        >
-          <div className="flex items-center gap-3">
-            <Settings size={16} className="text-gray-400" />
-            <span className={`sidebar-label ${collapsed ? "hidden-label" : "visible-label"}`}>Pengaturan</span>
-          </div>
-          {!collapsed && (
-            <ChevronDown size={14} className={`transition-transform ${settingsOpen ? "rotate-180" : ""}`} />
-          )}
-        </button>
-
-        {settingsOpen && !collapsed && (
-          <div className="pl-7 space-y-1">
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition">
-              <User size={14} />
-              <span>Profile</span>
-            </button>
-            <button onClick={() => router.post('/logout')} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 hover:text-red-700 transition">
-              <LogOut size={14} />
-              <span>Logout</span>
-            </button>
-          </div>
-        )}
-
-        <button
           onClick={handleCollapse}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm 
                      text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition"
@@ -217,7 +182,7 @@ function Sidebar({ active, setActive, collapsed, setCollapsed }) {
   );
 }
 
-/* ── TOPBAR ── */
+/* â”€â”€ TOPBAR â”€â”€ */
 function Topbar({ pageTitle, pageSubtitle }) {
     return (
         <div className="h-14 bg-white border-b border-gray-200 flex justify-between items-center px-6">
@@ -229,45 +194,121 @@ function Topbar({ pageTitle, pageSubtitle }) {
                 <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 transition">
                     <Search size={16} />
                 </button>
-                <button className="relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 transition">
-                    <Bell size={16} />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full border-2 border-white" />
-                </button>
-                <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
-                    <div className="text-right hidden sm:block">
-                        <p className="text-xs font-semibold text-gray-700">Yanuar Arifin</p>
-                        <p className="text-[10px] text-gray-400">Admin</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">YA</div>
+                <div className="pl-2 border-l border-gray-200">
+                    <ProfileButton showName />
                 </div>
             </div>
         </div>
     );
 }
 
-/* ── DASHBOARD PAGE ── */
+function ChangeBadge({ percent }) {
+    const up = percent >= 0;
+    return (
+        <div className="flex items-center gap-1 mt-1">
+            {up ? <ArrowUpRight size={12} className="text-green-500" /> : <ArrowDownRight size={12} className="text-red-500" />}
+            <span className={`text-xs font-medium ${up ? "text-green-500" : "text-red-500"}`}>
+                {up ? "+" : ""}{percent}%
+            </span>
+            <span className="text-xs text-gray-400">vs bulan lalu</span>
+        </div>
+    );
+}
+
+/* â”€â”€ DASHBOARD PAGE â”€â”€ */
 function DashboardPage() {
     const { props } = usePage();
     const totalProspek = props.totalProspek ?? 0;
     const totalWin = props.totalWin ?? 0;
-    const totalLose = props.totalLose ?? 0;
     const totalRevenue = props.totalRevenue ?? 0;
-    const salesTrendData = props.salesTrendData ?? [];
     const ranking = props.ranking ?? [];
     const lowStockItems = props.lowStockItems ?? [];
-    const topProducts = props.topProducts ?? [];
     const budgetUsage = props.budgetUsage ?? [];
     const customerReviews = props.customerReviews ?? [];
+    const overviewStats = props.overviewStats ?? {};
 
-    const [timeFilter, setTimeFilter] = useState("bulan_ini");
+    const month = overviewStats.monthComparison ?? {};
+    const revenueCmp = month.revenue ?? { current: totalRevenue, previous: 0, changePercent: 0 };
+    const prospekCmp = month.prospek ?? { current: totalProspek, previous: 0, changePercent: 0 };
+    const closingCmp = month.closing ?? { current: totalWin, previous: 0, changePercent: 0 };
+
     const winRate = totalProspek ? Math.round((totalWin / totalProspek) * 100) : 0;
     const displayRanking = ranking;
-    const displayTrend = salesTrendData;
     const displayLowStock = lowStockItems;
-    const displayTopProducts = topProducts;
-    const miniBarRevenue = salesTrendData.map(item => item.closing ?? 0);
-    const miniBarProspek = salesTrendData.map(item => item.masuk ?? 0);
 
+    const salesTrend = overviewStats.salesTrend ?? {};
+    const miniBarRevenue = (salesTrend.bulan_ini ?? []).map((item) => item.closing ?? 0);
+    const miniBarProspek = (salesTrend.bulan_ini ?? []).map((item) => item.masuk ?? 0);
+
+    const fmtSummaryCurrency = (data) =>
+        data?.length ? `Total: ${fmt(data.reduce((s, d) => s + (d.value ?? 0), 0))}` : null;
+
+    const overviewStatCards = [
+        {
+            id: "compare",
+            title: "Perbandingan Penjualan",
+            description: "Bulan ini vs bulan sebelumnya",
+            dataByPeriod: overviewStats.monthCompareSeries ?? {},
+            dataKeys: [{ key: "value", name: "Penjualan (Rp)", color: "#3b82f6" }],
+            defaultChartType: "bar",
+            allowedCharts: ["bar", "line", "area"],
+            formatSummary: fmtSummaryCurrency,
+        },
+        {
+            id: "sales",
+            title: "Statistik Sales",
+            description: "Performa penjualan per sales",
+            dataByPeriod: overviewStats.salesByPerson ?? {},
+            dataKeys: [{ key: "value", name: "Omset (Rp)", color: "#10b981" }],
+            defaultChartType: "bar",
+            allowedCharts: ["bar", "line", "area", "pie"],
+            formatSummary: fmtSummaryCurrency,
+        },
+        {
+            id: "brand",
+            title: "Statistik Produk (Merk)",
+            description: "Penjualan dikelompokkan per merk",
+            dataByPeriod: overviewStats.productsByBrand ?? {},
+            dataKeys: [{ key: "value", name: "Omset (Rp)", color: "#8b5cf6" }],
+            defaultChartType: "pie",
+            allowedCharts: ["pie", "bar", "line"],
+            formatSummary: fmtSummaryCurrency,
+        },
+        {
+            id: "area",
+            title: "Statistik Per Area",
+            description: "Omset per wilayah / regional",
+            dataByPeriod: overviewStats.revenueByArea ?? {},
+            dataKeys: [{ key: "value", name: "Omset (Rp)", color: "#f59e0b" }],
+            defaultChartType: "bar",
+            allowedCharts: ["bar", "pie", "line", "area"],
+            formatSummary: fmtSummaryCurrency,
+        },
+        {
+            id: "trend",
+            title: "Tren Prospek & Closing",
+            description: "Prospek masuk vs closing/win",
+            dataByPeriod: overviewStats.salesTrend ?? {},
+            dataKeys: [
+                { key: "masuk", name: "Prospek Masuk", color: "#3b82f6" },
+                { key: "closing", name: "Closing/Win", color: "#10b981" },
+            ],
+            defaultChartType: "area",
+            allowedCharts: ["area", "line", "bar"],
+            defaultWide: true,
+        },
+        {
+            id: "custom",
+            title: "Statistik Custom",
+            description: "Pilih metrik yang ingin divisualisasikan",
+            customMetrics: overviewStats.customMetrics ?? [],
+            customDataByPeriod: overviewStats.customData ?? {},
+            dataKeys: [{ key: "value", name: "Nilai", color: "#6366f1" }],
+            defaultChartType: "line",
+            allowedCharts: ["line", "bar", "area", "pie"],
+            defaultWide: true,
+        },
+    ];
 
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
@@ -281,14 +322,11 @@ function DashboardPage() {
                                 <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
                                     <div className="w-2 h-2 rounded-full bg-blue-500" />
                                 </div>
-                                <p className="text-xs text-gray-500 font-medium">Total Revenue</p>
+                                <p className="text-xs text-gray-500 font-medium">Penjualan Bulan Ini</p>
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-800">{fmt(totalRevenue)}</h2>
-                            <div className="flex items-center gap-1 mt-1">
-                                <ArrowUpRight size={12} className="text-green-500" />
-                                <span className="text-xs text-green-500 font-medium">+8.2%</span>
-                                <span className="text-xs text-gray-400">dari bulan lalu</span>
-                            </div>
+                            <h2 className="text-2xl font-bold text-gray-800">{fmt(revenueCmp.current)}</h2>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Bulan lalu: {fmt(revenueCmp.previous)}</p>
+                            <ChangeBadge percent={revenueCmp.changePercent} />
                         </div>
                         <MiniBar data={miniBarRevenue.length ? miniBarRevenue : [0]} color="#3b82f6" />
                     </div>
@@ -304,12 +342,9 @@ function DashboardPage() {
                                 </div>
                                 <p className="text-xs text-gray-500 font-medium">Total Prospek</p>
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-800">{totalProspek.toLocaleString("id-ID")}</h2>
-                            <div className="flex items-center gap-1 mt-1">
-                                <ArrowUpRight size={12} className="text-green-500" />
-                                <span className="text-xs text-green-500 font-medium">+4.7%</span>
-                                <span className="text-xs text-gray-400">dari bulan lalu</span>
-                            </div>
+                            <h2 className="text-2xl font-bold text-gray-800">{prospekCmp.current.toLocaleString("id-ID")}</h2>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Bulan lalu: {prospekCmp.previous.toLocaleString("id-ID")}</p>
+                            <ChangeBadge percent={prospekCmp.changePercent} />
                         </div>
                         <MiniBar data={miniBarProspek.length ? miniBarProspek : [0]} color="#6366f1" />
                     </div>
@@ -323,106 +358,27 @@ function DashboardPage() {
                                 <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
                                     <Target size={11} className="text-blue-500" />
                                 </div>
-                                <p className="text-xs text-gray-500 font-medium">Monthly Goals</p>
+                                <p className="text-xs text-gray-500 font-medium">Win Rate</p>
                             </div>
                             <div className="space-y-1 mt-2">
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-gray-400">Target</span>
-                                    <span className="font-medium text-gray-600">{fmt(250000000)}</span>
+                                    <span className="text-gray-400">Closing bulan ini</span>
+                                    <span className="font-semibold text-blue-600">{closingCmp.current}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-gray-400">Achieved</span>
-                                    <span className="font-semibold text-blue-600">{fmt(totalRevenue)}</span>
+                                    <span className="text-gray-400">Bulan lalu</span>
+                                    <span className="font-medium text-gray-600">{closingCmp.previous}</span>
                                 </div>
                             </div>
+                            <ChangeBadge percent={closingCmp.changePercent} />
                         </div>
                         <DonutChart pct={winRate} />
                     </div>
                 </div>
             </div>
 
-            {/* Sales Analytics + Top Products */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Sales Analytics */}
-                <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-800">Sales Analytics</h3>
-                        <div className="flex items-center gap-2">
-                            <select
-                                value={timeFilter}
-                                onChange={e => setTimeFilter(e.target.value)}
-                                className="text-xs border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-                            >
-                                <option value="hari_ini">Hari Ini</option>
-                                <option value="bulan_ini">Bulan Ini</option>
-                                <option value="tahun_ini">Tahun Ini</option>
-                            </select>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition">
-                                <ExternalLink size={13} />
-                            </button>
-                        </div>
-                    </div>
-                    <ResponsiveContainer width="100%" height={200}>
-                        <AreaChart data={displayTrend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="gradMasuk" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
-                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="gradWin" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9ca3af" }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9ca3af" }} />
-                            <Tooltip
-                                contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
-                                itemStyle={{ color: "#374151" }}
-                            />
-                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                            <Area type="monotone" dataKey="masuk" stroke="#3b82f6" strokeWidth={2.5} fill="url(#gradMasuk)" name="Prospek Masuk" dot={false} activeDot={{ r: 5 }} />
-                            <Area type="monotone" dataKey="closing" stroke="#10b981" strokeWidth={2.5} fill="url(#gradWin)" name="Closing/Win" dot={false} activeDot={{ r: 5 }} />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Top Products Heatmap (Simplified list for now) */}
-                <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-800">Top Produk</h3>
-                        <button className="w-7 h-7 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 transition">
-                            <ExternalLink size={13} />
-                        </button>
-                    </div>
-                    <div className="space-y-4">
-                        {displayTopProducts.map((p, i) => (
-                            <div key={p.id || i} className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                        {i + 1}
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-semibold text-gray-700">
-                                            {p.brand} {p.type}
-                                        </p>
-
-                                        <p className="text-xs font-bold text-gray-800">
-                                            {p.total || 0}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs font-bold text-gray-800">{p.sales_count || 0}</p>
-                                    <p className="text-[10px] text-gray-400">Terjual</p>
-                                </div>
-                            </div>
-                        ))}
-                        {!displayTopProducts.length && <p className="text-xs text-gray-400 text-center py-10">Belum ada data produk</p>}
-                    </div>
-                </div>
-            </div>
+            {/* Statistik umum — auto layout saat diperbesar */}
+            <OverviewStatsGrid cards={overviewStatCards} />
 
             {/* Bottom Row: Budget + Reviews + Low Stock + Ranking */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -539,7 +495,7 @@ function DashboardPage() {
     );
 }
 
-/* ── SALES PAGE ── */
+/* â”€â”€ SALES PAGE â”€â”€ */
 function SalesPage({ allSales = [] }) {
     const displaySales = allSales;
     return (
@@ -566,8 +522,10 @@ function SalesPage({ allSales = [] }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {displaySales.map(s => (
-                                <tr key={s.id} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/30 transition">
+                            {displaySales.map(s => {
+                                const salesId = s.idSales ?? s.id;
+                                return (
+                                <tr key={salesId} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/30 transition">
                                     <td className="px-5 py-3.5 text-xs font-mono text-gray-500">{s.kode_sales || "-"}</td>
                                     <td className="px-5 py-3.5">
                                         <div className="flex items-center gap-3">
@@ -581,14 +539,15 @@ function SalesPage({ allSales = [] }) {
                                     </td>
                                     <td className="px-5 py-3.5 text-center">
                                         <button
-                                            onClick={() => router.visit(`/admin/sales/${s.id}`)}
+                                            onClick={() => router.visit(route('admin.sales.detail', salesId))}
                                             className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3"
                                         >
                                             Rincian
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
+                            );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -597,7 +556,7 @@ function SalesPage({ allSales = [] }) {
     );
 }
 
-/* ── WILAYAH PAGE ── */
+/* â”€â”€ WILAYAH PAGE â”€â”€ */
 function WilayahPage({ stores = [] }) {
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
@@ -653,7 +612,7 @@ function WilayahPage({ stores = [] }) {
     );
 }
 
-/* ── STATISTIK PAGE ── */
+/* â”€â”€ STATISTIK PAGE â”€â”€ */
 function StatistikPage() {
     const [chartType, setChartType] = useState("bar");
     const data = [
@@ -737,7 +696,7 @@ function StatistikPage() {
     );
 }
 
-/* ── PROSES PENJUALAN PAGE ── */
+/* â”€â”€ PROSES PENJUALAN PAGE â”€â”€ */
 function ProsesPenjualanPage({ allProspeks = [] }) {
     const displayProspeks = allProspeks;
 
@@ -793,7 +752,7 @@ function ProsesPenjualanPage({ allProspeks = [] }) {
     );
 }
 
-/* ── PRODUK PAGE ── */
+/* â”€â”€ PRODUK PAGE â”€â”€ */
 function ProdukPage({ allProducts = [] }) {
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
@@ -826,7 +785,7 @@ function ProdukPage({ allProducts = [] }) {
     );
 }
 
-/* ── DATABASE PELANGGAN PAGE ── */
+/* â”€â”€ DATABASE PELANGGAN PAGE â”€â”€ */
 function DatabasePelangganPage({ allProspeks = [], totalRevenue = 0 }) {
     // Derive unique customers from prospeks
     const customersMap = new Map();
@@ -931,10 +890,10 @@ function DatabasePelangganPage({ allProspeks = [], totalRevenue = 0 }) {
                                     <td className="px-6 py-5">
                                         <div className="space-y-0.5">
                                             <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                <span className="opacity-50">✉</span> {customer.email}
+                                                <span className="opacity-50">âœ‰</span> {customer.email}
                                             </p>
                                             <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                                <span className="opacity-50">📞</span> {customer.phone}
+                                                <span className="opacity-50">ðŸ“ž</span> {customer.phone}
                                             </p>
                                         </div>
                                     </td>
@@ -968,7 +927,7 @@ function DatabasePelangganPage({ allProspeks = [], totalRevenue = 0 }) {
     );
 }
 
-/* ── PENGATURAN PAGE ── */
+/* â”€â”€ PENGATURAN PAGE â”€â”€ */
 function PengaturanPage({ subPage }) {
     return (
         <div className="p-6 space-y-5 bg-gray-50 min-h-full">
@@ -1011,17 +970,13 @@ function PengaturanPage({ subPage }) {
     );
 }
 
-/* ── PAGE META ── */
+/* â”€â”€ PAGE META â”€â”€ */
 const pageMeta = {
     dashboard: { title: "Store Overview", subtitle: "Here's how your store is performing today" },
     sales: { title: "Akun Sales", subtitle: "Kelola dan pantau akun sales" },
     wilayah: { title: "Wilayah & Outlet", subtitle: "Pantau performa tiap wilayah" },
-    statistik: { title: "Statistik", subtitle: "Visualisasi data penjualan" },
     produk: { title: "Produk", subtitle: "Manajemen katalog produk" },
     prospek: { title: "Proses Penjualan", subtitle: "Pipeline dan prospek penjualan" },
-    customers: { title: "Database Pelanggan", subtitle: "Kelola database dan riwayat transaksi pelanggan" },
-    "pengaturan-profil": { title: "Pengaturan", subtitle: "Profil perusahaan" },
-    "pengaturan-sistem": { title: "Pengaturan", subtitle: "Preferensi sistem" },
 };
 
 export default function Dashboard() {
@@ -1035,11 +990,6 @@ export default function Dashboard() {
         switch (active) {
             case "dashboard": return <DashboardPage {...props} />;
             case "wilayah": return <WilayahPage stores={props.stores ?? []} />;
-            case "statistik": return <StatistikPage {...props} />;
-            case "customers": return <DatabasePelangganPage {...props} />;
-            case "pengaturan":
-            case "pengaturan-profil": return <PengaturanPage subPage="profil" />;
-            case "pengaturan-sistem": return <PengaturanPage subPage="sistem" />;
             default: return <DashboardPage {...props} />;
             case "sales":
                 return <SalesPage allSales={props.allSales} />;
@@ -1058,11 +1008,11 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-50 font-sans">
+        <div className="flex h-screen overflow-hidden bg-gray-50 font-sans">
             <Sidebar active={active} setActive={setActive} collapsed={collapsed} setCollapsed={setCollapsed} />
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                 <Topbar pageTitle={meta.title} pageSubtitle={meta.subtitle} />
-                <main className="flex-1 overflow-auto">
+                <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
                     {renderPage()}
                 </main>
             </div>

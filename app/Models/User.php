@@ -15,9 +15,16 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Primary Key
+     */
+    protected $primaryKey = 'idSales';
+    public $incrementing = true;
+
+    /**
      * Mass Assignment
      */
     protected $fillable = [
+        'idSales',
         'name',
         'email',
         'password',
